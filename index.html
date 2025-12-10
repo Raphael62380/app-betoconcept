@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Bétoconcept V21</title>
+    <title>Calculateur Bétoconcept</title>
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%2327ae60%22 rx=%2220%22/><path d=%22M20 70 L20 30 L80 30 L80 70 Z%22 fill=%22white%22/><rect x=%2230%22 y=%2240%22 width=%2240%22 height=%2220%22 fill=%22%2327ae60%22/></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%2327ae60%22 rx=%2220%22/><path d=%22M20 70 L20 30 L80 30 L80 70 Z%22 fill=%22white%22/><rect x=%2230%22 y=%2240%22 width=%2240%22 height=%2220%22 fill=%22%2327ae60%22/></svg>">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzI3YWU2MCIgcng9IjIwIi8+PHBhdGggZD0iTTIwIDcwIEwyMCAzMCBMODAgMzAgTDgwIDcwIFoiIGZpbGw9IndoaXRlIi8+PHJlY3QgeD0iMzAiIHk9IjQwIiB3aWR0aD0iNDAiIGhlaWdodD0iMjAiIGZpbGw9IiMyN2FlNjAiLz48L3N2Zz4=">
 
     <style>
         :root {
-            --primary: #27ae60;
-            --secondary: #2c3e50;
-            --accent: #e67e22;
-            --info: #2980b9;
+            --primary: #27ae60;      /* Vert Bétoconcept */
+            --secondary: #2c3e50;    /* Gris Foncé */
+            --accent: #e67e22;       /* Orange */
+            --info: #2980b9;         /* Bleu */
             --bg: #f0f2f5;
             --panel: #ffffff;
         }
@@ -48,16 +47,27 @@
             height: 100%;     
         }
         
-        /* HEADER */
+        /* HEADER AVEC IMAGE EXTERNE */
         .app-header {
             display: flex;
             align-items: center;
+            justify-content: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 2px solid #eee;
+            background: #fafafa;
+            border-radius: 6px;
+            padding-top: 10px;
         }
         
-        .logo-img { height: 42px; width: 42px; margin-right: 12px; border-radius: 6px; }
+        /* Gestion de la taille du logo */
+        #logo-img {
+            height: 70px; /* Hauteur idéale, modifiable */
+            width: auto;
+            margin-right: 15px;
+            max-width: 200px;
+            object-fit: contain; /* Garde les proportions */
+        }
         
         .app-title { display: flex; flex-direction: column; justify-content: center; }
         .app-title h1 { margin: 0; font-size: 1.4em; color: var(--secondary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; }
@@ -116,8 +126,10 @@
 
 <div class="app-grid">
     <div class="panel">
+        
         <div class="app-header">
-            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjMjdhZTYwIiByeD0iMTAiLz48cGF0aCBkPSJNTEwIDM1IEwxMCAxNSBMNDAgMTUgTDQwIDM1IFoiIGZpbGw9IiNmZmYiLz48cmVjdCB4PSIxNSIgeT0iMjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxMCIgZmlsbD0iIzI3YWU2MCIvPjwvc3ZnPg==" alt="Logo" class="logo-img">
+            <img id="logo-img" src="logo.png" alt="Logo Bétoconcept">
+            
             <div class="app-title">
                 <h1>Bétoconcept</h1>
                 <span>Calculateur Technique</span>
