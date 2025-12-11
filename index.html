@@ -1,74 +1,29 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Bétoconcept</title>
+    <title>Calculateur Bétoconcept V29 (Remises)</title>
     
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzI3YWU2MCIgcng9IjIwIi8+PHBhdGggZD0iTTIwIDcwIEwyMCAzMCBMODAgMzAgTDgwIDcwIFoiIGZpbGw9IndoaXRlIi8+PHJlY3QgeD0iMzAiIHk9IjQwIiB3aWR0aD0iNDAiIGhlaWdodD0iMjAiIGZpbGw9IiMyN2FlNjAiLz48L3N2Zz4=">
 
     <style>
         :root {
-            --primary: #27ae60;      /* Vert Bétoconcept */
-            --secondary: #2c3e50;    /* Gris Foncé */
-            --accent: #e67e22;       /* Orange */
-            --info: #2980b9;         /* Bleu */
+            --primary: #27ae60;
+            --secondary: #2c3e50;
+            --accent: #e67e22; /* Couleur pour les remises */
+            --info: #2980b9;
             --bg: #f0f2f5;
             --panel: #ffffff;
         }
         
-        body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-            margin: 0; 
-            background: var(--bg); 
-            color: var(--secondary); 
-            font-size: 13px;
-            height: 100vh; 
-            overflow: hidden; 
-        }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--secondary); font-size: 13px; height: 100vh; overflow: hidden; }
+        .app-grid { display: grid; grid-template-columns: 390px 1fr 340px; gap: 15px; padding: 15px; height: 100vh; box-sizing: border-box; }
+        .panel { background: var(--panel); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-y: auto; height: 100%; }
         
-        .app-grid { 
-            display: grid; 
-            grid-template-columns: 390px 1fr 340px; 
-            gap: 15px; 
-            padding: 15px; 
-            height: 100vh; 
-            box-sizing: border-box; 
-        }
-        
-        .panel { 
-            background: var(--panel); 
-            border-radius: 8px; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
-            overflow-y: auto; 
-            height: 100%;     
-        }
-        
-        /* HEADER AVEC IMAGE EXTERNE */
-        .app-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
-            background: #fafafa;
-            border-radius: 6px;
-            padding-top: 10px;
-        }
-        
-        /* Gestion de la taille du logo */
-        #logo-img {
-            height: 70px; /* Hauteur idéale, modifiable */
-            width: auto;
-            margin-right: 15px;
-            max-width: 200px;
-            object-fit: contain; /* Garde les proportions */
-        }
-        
+        /* HEADER */
+        .app-header { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #eee; background: #fafafa; border-radius: 6px; padding-top: 10px; }
+        #logo-img { height: 70px; width: auto; margin-right: 15px; max-width: 200px; object-fit: contain; }
         .app-title { display: flex; flex-direction: column; justify-content: center; }
         .app-title h1 { margin: 0; font-size: 1.4em; color: var(--secondary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; }
         .app-title span { font-size: 0.85em; color: var(--primary); font-weight: 600; margin-top: 3px; }
@@ -84,12 +39,10 @@
         .btn-group { display: flex; border: 1px solid #bdc3c7; border-radius: 4px; overflow: hidden; margin-bottom: 15px; flex-shrink: 0; }
         .btn-mode { flex: 1; padding: 8px; border: none; background: #f8f9fa; cursor: pointer; font-weight: 600; font-size: 0.85em; transition: 0.2s; }
         .btn-mode.active { background: var(--secondary); color: white; }
-        
         .color-switch { display: flex; gap: 10px; margin-bottom: 10px; background: #f8f9fa; padding: 5px; border-radius: 4px; flex-shrink: 0; }
         .radio-label { flex: 1; text-align: center; cursor: pointer; padding: 5px; border-radius: 4px; font-size: 0.9em; }
         .radio-label input { display: none; }
         .radio-label.checked { background: var(--accent); color: white; font-weight: bold; }
-        
         .shape-switch { display: flex; gap: 5px; margin-bottom: 15px; background: #e8f5e9; padding: 5px; border-radius: 4px; }
         .shape-btn { flex: 1; border: 1px solid var(--primary); color: var(--primary); background: white; padding: 5px; border-radius: 4px; cursor: pointer; text-align: center; font-weight: bold; }
         .shape-btn.active { background: var(--primary); color: white; }
@@ -103,12 +56,19 @@
         
         .res-block { background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--secondary); }
         .res-block.logistique { background: #eaf2f8; border-left-color: var(--info); }
-        
         .res-line { display: flex; justify-content: space-between; font-size: 0.95em; margin-bottom: 3px; }
         .res-total { font-size: 1.2em; font-weight: bold; color: var(--primary); text-align: right; margin-top: 5px; border-top: 1px solid #ddd; padding-top: 5px; }
         .price-input { width: 65px; text-align: right; background: white; border: 1px solid #ddd; height: 24px; padding: 2px 5px; }
-        
         .log-full-pallet { margin-top: 6px; padding-top: 6px; border-top: 1px dashed #b8c6d1; font-size: 0.9em; color: #2c3e50; background: rgba(255,255,255,0.5); padding: 5px; border-radius: 4px; }
+
+        /* Styles spécifiques Remise */
+        .remise-input { 
+            width: 50px !important; 
+            text-align: center; 
+            border: 1px solid var(--accent) !important; 
+            color: var(--accent); 
+            font-weight: bold;
+        }
 
         @media print {
             body { height: auto; overflow: visible; font-size: 12px; }
@@ -118,6 +78,7 @@
             input, select { border: none; background: transparent; padding: 0; appearance: none; }
             #visu-container { height: 600px; page-break-inside: avoid; border: 1px solid #000; }
             .res-block.logistique { background: #fff; border: 1px solid #ccc; }
+            .remise-input { border: 1px solid #ccc !important; }
         }
         @media (max-width: 1000px) { body { overflow: auto; height: auto; } .app-grid { display: block; height: auto; } .panel { margin-bottom: 20px; height: auto; } }
     </style>
@@ -128,8 +89,7 @@
     <div class="panel">
         
         <div class="app-header">
-            <img id="logo-img" src="logo.png" alt="Logo Bétoconcept">
-            
+            <img id="logo-img" src="logo.png" alt="Bétoconcept" onerror="this.style.display='none'">
             <div class="app-title">
                 <h1>Bétoconcept</h1>
                 <span>Calculateur Technique</span>
@@ -157,7 +117,7 @@
         <div class="form-group">
             <select id="produit" onchange="updateUI()">
                 <option value="leromur">LEROMUR (Sécable H=13cm)</option>
-                <option value="betoatlas">BETOATLAS (Bloc H=25cm)</option>
+                <option value="betoatlas">BETOATLAS (Bloc H=20cm)</option>
             </select>
         </div>
 
@@ -237,9 +197,12 @@
                     <strong>Soit <span id="log-items-sup">0</span> unités</strong>
                 </div>
             </div>
-            <div class="res-line" style="border-top:1px solid #cbd5e0; padding-top:4px; margin-top:5px;">
-                <span>Besoin Rouleau (L. 5,30m) :</span>
-                <strong id="log-ml">0 ml</strong>
+            <div class="log-full-pallet">
+                <div style="font-size:0.85em; font-weight:bold; margin-bottom:2px;">Besoin Géotextile (L=5.30m) :</div>
+                <div class="res-line"><span>Métré total :</span> <strong id="log-ml">0 ml</strong></div>
+                <div style="text-align:right; font-size:0.9em; color:#2c3e50; font-weight:bold; margin-top:2px;">
+                    <span id="log-detail-rouleaux">0 rlxs + 0 ml</span>
+                </div>
             </div>
         </div>
 
@@ -248,14 +211,28 @@
             <input type="number" id="cout-etude" value="0" oninput="calculer()">
         </div>
 
-        <h3>Tarifs HT Départ</h3>
+        <h3>Tarifs HT Départ (Remisables)</h3>
+        
         <div class="res-line"><span>P.U. Élément :</span> <input class="price-input" id="pu-bloc" type="number" step="0.01" onchange="calculer()"> €</div>
         <div class="res-line"><span>P.U. Géo /m² :</span> <input class="price-input" id="pu-geo" type="number" step="0.01" onchange="calculer()"> €</div>
+        
         <hr>
-        <div class="res-line"><span>Total Éléments :</span> <span id="tot-blocs">0.00 €</span></div>
-        <div class="res-line"><span>Total Géo :</span> <span id="tot-geo">0.00 €</span></div>
+
+        <div class="res-line" style="margin-top:10px; color:var(--accent);">
+            <span style="font-weight:bold;">Remise Blocs :</span>
+            <span><input type="number" id="remise-bloc" class="remise-input" value="0" min="0" max="100" oninput="calculer()"> %</span>
+        </div>
+        <div class="res-line" style="color:var(--accent);">
+            <span style="font-weight:bold;">Remise Géo :</span>
+            <span><input type="number" id="remise-geo" class="remise-input" value="0" min="0" max="100" oninput="calculer()"> %</span>
+        </div>
+
+        <hr>
+        
+        <div class="res-line"><span>Total Éléments (Net) :</span> <span id="tot-blocs">0.00 €</span></div>
+        <div class="res-line"><span>Total Géo (Net) :</span> <span id="tot-geo">0.00 €</span></div>
         <div class="res-line"><span>Étude :</span> <span id="tot-etude">0.00 €</span></div>
-        <div class="res-total">TOTAL HT : <span id="grand-total">0.00 €</span></div>
+        <div class="res-total">TOTAL HT NET : <span id="grand-total">0.00 €</span></div>
         <div style="text-align:right; font-size:0.85em; color:var(--primary); margin-top:5px;">Soit <strong id="px-m2">0.00</strong> € HT / m²</div>
 
         <button class="no-print" onclick="window.print()" style="margin-top:auto; background:var(--primary); color:white; border:none; padding:12px; border-radius:4px; font-weight:bold; cursor:pointer;">IMPRIMER L'OFFRE</button>
@@ -263,11 +240,25 @@
 </div>
 
 <script>
-    const CONSTANTS = { LEROMUR_BLOCS_M2: 38.5, LEROMUR_H: 0.13, BETOATLAS_H: 0.25, BETOATLAS_BLOCS_M2: 20, RECOUVREMENT: 0.40, PALETTE_LERO: 24, PALETTE_BETO: 48, LARGEUR_ROULEAU: 5.30 };
+    // === CONSTANTES ===
+    const CONSTANTS = { 
+        LEROMUR_BLOCS_M2: 38.5, 
+        LEROMUR_H: 0.13, 
+        BETOATLAS_H: 0.20, 
+        BETOATLAS_BLOCS_M2: 20, 
+        RECOUVREMENT: 0.40, 
+        RECOUVREMENT_LATERAL: 0.20,
+        PALETTE_LERO: 24, 
+        PALETTE_BETO: 48, 
+        LARGEUR_ROULEAU: 5.30,
+        LONGUEUR_ROULEAU: 100
+    };
+    
     const DATA = { leromur: { h: CONSTANTS.LEROMUR_H, prices: { gris: [5.89, 6.60, 7.13], couleur: [7.26, 8.13, 8.78] } }, betoatlas: { h: CONSTANTS.BETOATLAS_H, prices: { gris: [3.93, 4.40, 4.75], couleur: [4.56, 5.11, 5.52] } } };
     const GEO_PRICES = { "50": [3.88, 4.35, 4.70], "100": [4.68, 5.24, 5.66], "150": [5.53, 6.19, 6.69], "200": [6.57, 7.36, 7.95] };
     let state = { mode: 0, color: 'gris', product: 'leromur', shape: 'rect' };
 
+    // === FONCTIONS ===
     function setTarif(type, btn) {
         const map = { 'negoce': 0, 'entreprise': 1, 'particulier': 2 }; state.mode = map[type];
         document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active')); btn.classList.add('active');
@@ -344,6 +335,7 @@
             return { depth: d, geo: g };
         });
         let totalQty = 0; let totalSurface = 0; let totalGeoSurf = 0;
+        
         if (state.shape === 'rect') {
             const nbRangs = rows.length; totalSurface = L * (nbRangs * hElem);
             masterProfile.forEach(p => {
@@ -377,29 +369,58 @@
                 }
             }
         }
+        
+        const coeffRecouvrementLateral = CONSTANTS.LARGEUR_ROULEAU / (CONSTANTS.LARGEUR_ROULEAU - 2 * CONSTANTS.RECOUVREMENT_LATERAL);
+        const totalGeoSurfReelle = totalGeoSurf * coeffRecouvrementLateral;
+
         const quantiteAchat = Math.ceil(totalQty);
         let colisage = (state.product === 'leromur') ? CONSTANTS.PALETTE_LERO : CONSTANTS.PALETTE_BETO;
         let nbPalettes = (quantiteAchat > 0) ? quantiteAchat / colisage : 0;
         let palettesPleines = Math.floor(nbPalettes); let resteUnites = quantiteAchat % colisage;
         let palSup = Math.ceil(quantiteAchat / colisage); let itemsSup = palSup * colisage;
-        const mlRouleau = Math.ceil(totalGeoSurf / CONSTANTS.LARGEUR_ROULEAU);
+        
+        const mlRouleau = Math.ceil(totalGeoSurfReelle / CONSTANTS.LARGEUR_ROULEAU);
+        const nbRouleauxComplets = Math.floor(mlRouleau / CONSTANTS.LONGUEUR_ROULEAU);
+        const resteMlRouleau = mlRouleau % CONSTANTS.LONGUEUR_ROULEAU;
+        
         const puBloc = parseFloat(document.getElementById('pu-bloc').value) || 0;
         const puGeo = parseFloat(document.getElementById('pu-geo').value) || 0;
         const etude = parseFloat(document.getElementById('cout-etude').value) || 0;
-        const totBloc = quantiteAchat * puBloc; const totGeo = totalGeoSurf * puGeo;
+        
+        const remiseBlocPct = parseFloat(document.getElementById('remise-bloc').value) || 0;
+        const remiseGeoPct = parseFloat(document.getElementById('remise-geo').value) || 0;
+
+        let totBloc = quantiteAchat * puBloc;
+        let totGeo = totalGeoSurfReelle * puGeo;
+        
+        // Application Remises
+        totBloc = totBloc * (1 - (remiseBlocPct/100));
+        totGeo = totGeo * (1 - (remiseGeoPct/100));
+
         const grandTotal = totBloc + totGeo + etude;
+        
         document.getElementById('res-surf').innerText = totalSurface.toFixed(2) + " m²";
         document.getElementById('res-qty').innerText = quantiteAchat;
         document.getElementById('log-detail-palettes').innerText = `${palettesPleines} pal. + ${resteUnites} u`;
         document.getElementById('log-pal-sup').innerText = palSup;
         document.getElementById('log-items-sup').innerText = itemsSup;
+        
         document.getElementById('log-ml').innerText = mlRouleau + " ml";
-        document.getElementById('res-geo-total').innerText = totalGeoSurf.toFixed(2) + " m²";
+        let detailRlxText = "";
+        if(nbRouleauxComplets > 0) {
+            detailRlxText = `${nbRouleauxComplets} rlxs de 100m + ${resteMlRouleau} ml`;
+        } else {
+            detailRlxText = `1 rlx (Coupe de ${resteMlRouleau} ml)`;
+        }
+        document.getElementById('log-detail-rouleaux').innerText = detailRlxText;
+
+        document.getElementById('res-geo-total').innerText = totalGeoSurfReelle.toFixed(2) + " m²";
         document.getElementById('tot-blocs').innerText = totBloc.toFixed(2) + " €";
         document.getElementById('tot-geo').innerText = totGeo.toFixed(2) + " €";
         document.getElementById('tot-etude').innerText = etude.toFixed(2) + " €";
         document.getElementById('grand-total').innerText = grandTotal.toFixed(2) + " €";
         document.getElementById('px-m2').innerText = (totalSurface > 0 ? grandTotal / totalSurface : 0).toFixed(2);
+        
         if (rows.length > 0) drawDualVisu(rows.length, hElem, masterProfile);
         else document.getElementById('visu-container').innerHTML = '';
     }
