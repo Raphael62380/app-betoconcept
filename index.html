@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Bétoconcept V39 (Soutènement)</title>
+    <title>Calculateur Bétoconcept V40 (Final)</title>
     
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzI3YWU2MCIgcng9IjIwIi8+PHBhdGggZD0iTTIwIDcwIEwyMCAzMCBMODAgMzAgTDgwIDcwIFoiIGZpbGw9IndoaXRlIi8+PHJlY3QgeD0iMzAiIHk9IjQwIiB3aWR0aD0iNDAiIGhlaWdodD0iMjAiIGZpbGw9IiMyN2FlNjAiLz48L3N2Zz4=">
 
@@ -124,7 +124,7 @@
     <div class="panel">
         <div class="app-header">
             <img id="logo-img" src="logo.png" alt="Bétoconcept" onerror="this.style.display='none'">
-            <div class="app-title"><h1>Bétoconcept</h1><span>Calculateur V39</span></div>
+            <div class="app-title"><h1>Bétoconcept</h1><span>Calculateur V40</span></div>
         </div>
 
         <div class="btn-group">
@@ -291,7 +291,16 @@
                 const ds=oldRows[i].querySelector('.depth-select'); if(ds) oldDepth=ds.value;
             }
             let selHTML = (state.product==='leromur') ? `<select class="depth-select" onchange="calculer()"><option value="25" ${oldDepth=="25"?'selected':''}>25</option><option value="50" ${oldDepth=="50"?'selected':''}>50</option><option value="75" ${oldDepth=="75"?'selected':''}>75</option><option value="100" ${oldDepth=="100"?'selected':''}>100</option></select>` : `<span style="color:#ccc; font-size:0.8em">Std</span>`;
-            div.innerHTML=`<label>R${i+1} ${isBuried?'<small>(Ent)</small>':''}</label>${selHTML}<input type="number" class="nappe-input" step="0.5" placeholder="0" value="${oldGeo>0?oldGeo:''}" oninput="calculer()">`;
+            
+            // MODIFICATION: Champ input nappe vide si rang 1 (i=0)
+            let nappeInputHTML;
+            if (i === 0) {
+                 nappeInputHTML = `<span style="color:#ccc; text-align:right;">—</span>`; // Pas de nappe rang 1
+            } else {
+                 nappeInputHTML = `<input type="number" class="nappe-input" step="0.5" placeholder="0" value="${oldGeo>0?oldGeo:''}" oninput="calculer()">`;
+            }
+
+            div.innerHTML=`<label>R${i+1} ${isBuried?'<small>(Ent)</small>':''}</label>${selHTML}${nappeInputHTML}`;
             container.appendChild(div);
         }
         refreshPrices();
@@ -424,11 +433,11 @@
             let d=0.30; if(state.product==='leromur') d=p.depth/100;
             const y = (nbRangs-1-i)*hBloc * S;
             const x = (i*hBloc*Math.tan(ang)) * S;
-            // Ecart blocs réduit à 0.3
+            
             svgC += `<rect x="${x}" y="${y}" width="${d*S}" height="${hBloc*S}" fill="#95a5a6" stroke="white" stroke-width="0.3"/>`;
-            // Condition : Pas de géo sous le rang 1 (i=0)
             if(p.geo>0 && i>0) {
-                svgC += `<line x1="${x+d*S}" y1="${y+hBloc*S}" x2="${x+d*S+p.geo*S}" y2="${y+hBloc*S}" stroke="#2980b9" stroke-width="3"/>`;
+                // MODIFICATION : Trait nappe très fin (0.5)
+                svgC += `<line x1="${x+d*S}" y1="${y+hBloc*S}" x2="${x+d*S+p.geo*S}" y2="${y+hBloc*S}" stroke="#2980b9" stroke-width="0.5"/>`;
             }
         }
 
@@ -437,21 +446,17 @@
         svgC += `<rect x="${-0.15*S}" y="${yBot}" width="${wSem*S}" height="${hFondM*S}" fill="#7f8c8d"/>`;
         svgC += `<text x="${-0.15*S}" y="${yBot+hFondM*S+12}" font-size="8" fill="#333">Semelle ${hFond}cm</text>`;
         
-        // --- TN AVAL (Marron, Gauche) ---
-        // On dessine le terrain naturel en bas à gauche jusqu'au pied du mur
         const yTN = (totH-hBuried)*S;
         svgC += `<rect x="-50" y="${yTN}" width="50" height="${(hBuried+hFondM)*S+50}" fill="url(#hatch)" opacity="0.3"/>`;
         svgC += `<line x1="-50" y1="${yTN}" x2="0" y2="${yTN}" stroke="#8d6e63" stroke-width="1.5"/>`;
         svgC += `<text x="-45" y="${yTN-5}" font-size="9" fill="#8d6e63" font-weight="bold">TN Aval</text>`;
 
-        // --- TN AMONT (Vert, Haut) ---
-        // Le terrain arrive au niveau zéro (haut du mur) à l'arrière
         const iTop = nbRangs - 1;
         const pTop = profile[iTop] || {depth:50};
         let dTop = 0.30;
         if(state.product === 'leromur') dTop = pTop.depth/100;
         const xTopBack = (iTop * hBloc * Math.tan(ang) + dTop) * S;
-        const yTop = 0; // Le haut du mur est à y=0 dans la boucle
+        const yTop = 0; 
 
         svgC += `<line x1="${xTopBack}" y1="${yTop}" x2="${vbW}" y2="${yTop}" stroke="#27ae60" stroke-width="2"/>`;
         svgC += `<text x="${xTopBack + 10}" y="${yTop - 5}" font-size="9" fill="#27ae60" font-weight="bold">TN Amont</text>`;
