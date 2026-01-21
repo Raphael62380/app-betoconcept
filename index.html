@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Bétoconcept V36 (Lisibilité & Fit)</title>
+    <title>Calculateur Bétoconcept V37 (Ajustement Graphique)</title>
     
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzI3YWU2MCIgcng9IjIwIi8+PHBhdGggZD0iTTIwIDcwIEwyMCAzMCBMODAgMzAgTDgwIDcwIFoiIGZpbGw9IndoaXRlIi8+PHJlY3QgeD0iMzAiIHk9IjQwIiB3aWR0aD0iNDAiIGhlaWdodD0iMjAiIGZpbGw9IiMyN2FlNjAiLz48L3N2Zz4=">
 
@@ -18,20 +18,19 @@
             --panel: #ffffff;
         }
         
-        /* LAYOUT GLOBAL : Empêcher le scroll global si possible */
         body { 
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
             margin: 0; 
             background: var(--bg); 
             color: var(--secondary); 
             font-size: 13px; 
-            height: 100vh; /* Hauteur fixe écran */
-            overflow: hidden; /* On gère le scroll dans les panneaux */
+            height: 100vh; 
+            overflow: hidden; 
         }
 
         .app-grid { 
             display: grid; 
-            grid-template-columns: 380px 1fr 320px; /* Colonnes un peu ajustées */
+            grid-template-columns: 380px 1fr 320px; 
             gap: 15px; 
             padding: 10px; 
             box-sizing: border-box; 
@@ -45,7 +44,7 @@
             display: flex; 
             flex-direction: column; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
-            overflow-y: auto; /* Scroll uniquement DANS les panneaux */
+            overflow-y: auto; 
             height: 100%; 
             box-sizing: border-box;
         }
@@ -81,7 +80,6 @@
         .depth-select { padding: 2px; font-size: 0.85em; }
         .nappe-input { text-align: right; padding: 2px; }
         
-        /* Visu Container : Prend tout l'espace restant, pas de scroll, centré */
         #visu-container { 
             flex-grow: 1; 
             border: 1px dashed #bdc3c7; 
@@ -101,7 +99,6 @@
         .height-proposal { font-size: 0.8em; color: var(--info); background: #eaf2f8; padding: 3px; border-radius: 4px; margin-top: 3px; border-left: 3px solid var(--info); }
         .remise-input { width: 40px !important; text-align: center; border: 1px solid var(--accent) !important; color: var(--accent); font-weight: bold; }
 
-        /* IMPRESSION */
         @media print {
             body { height: auto; overflow: visible; font-size: 11px; background: white; }
             .app-grid { display: block; padding: 0; height: auto; }
@@ -126,7 +123,7 @@
     <div class="panel">
         <div class="app-header">
             <img id="logo-img" src="logo.png" alt="Bétoconcept" onerror="this.style.display='none'">
-            <div class="app-title"><h1>Bétoconcept</h1><span>Calculateur V36</span></div>
+            <div class="app-title"><h1>Bétoconcept</h1><span>Calculateur V37</span></div>
         </div>
 
         <div class="btn-group">
@@ -389,42 +386,39 @@
         const hG_real = (Math.ceil((hG+hBuried)/hBloc)-nbBur)*hBloc;
         const hD_real = (Math.ceil((hD+hBuried)/hBloc)-nbBur)*hBloc;
 
-        // VUE FACE
+        // --- VUE DE FACE (25% hauteur) ---
+        // On zoom un peu plus
         const scaleFace = 90 / Math.max(hG_real+hBuried, hD_real+hBuried, 1);
         const yTopG = 100 - ((hG_real+hBuried)*scaleFace);
         const yTopD = 100 - ((hD_real+hBuried)*scaleFace);
         const ySol = 100 - (hBuried*scaleFace);
         
-        let svgFace = `<svg width="100%" height="15%" viewBox="-10 -10 120 120" preserveAspectRatio="xMidYMid meet">
-            <text x="50" y="0" text-anchor="middle" font-size="10" fill="#666" font-weight="bold">VUE FACE</text>
+        let svgFace = `<svg width="100%" height="25%" viewBox="-10 -20 120 140" preserveAspectRatio="xMidYMid meet">
+            <text x="50" y="-5" text-anchor="middle" font-size="8" fill="#666" font-weight="bold">VUE FACE</text>
             <polygon points="0,100 100,100 100,${yTopD} 0,${yTopG}" fill="#bdc3c7" stroke="#2c3e50" stroke-width="1"/>
             <polygon points="-5,105 105,105 105,${ySol} -5,${ySol}" fill="#8d6e63" opacity="0.3"/>
             <line x1="-5" y1="${ySol}" x2="105" y2="${ySol}" stroke="#8d6e63" stroke-width="1" stroke-dasharray="3,3"/>
-            <text x="-8" y="${yTopG+5}" font-size="10">${hG_real.toFixed(2)}m</text>
-            <text x="102" y="${yTopD+5}" font-size="10">${hD_real.toFixed(2)}m</text>
-            <text x="50" y="115" font-size="10" text-anchor="middle">L=${L}m</text>
+            <text x="-8" y="${yTopG+5}" font-size="8">${hG_real.toFixed(2)}m</text>
+            <text x="102" y="${yTopD+5}" font-size="8">${hD_real.toFixed(2)}m</text>
+            <text x="50" y="115" font-size="8" text-anchor="middle">L=${L}m</text>
         </svg>`;
 
-        // COUPE TECHNIQUE
-        // 1m = 30px pour que ça rentre
+        // --- COUPE TECHNIQUE (75% hauteur) ---
         const S = 30; 
         const maxGeo = Math.max(1, ...profile.map(p=>p.geo));
         const totH = nbRangs*hBloc;
         const shift = totH * Math.tan(ang);
         
-        // Calcul ViewBox intelligent
-        // Largeur = Fond (0.5) + Shift + Geo + Marge
         const wM = 0.5 + shift + maxGeo + 1; 
-        const hM = totH + hFondM + 1; // +1m de marge verticale pour textes
+        const hM = totH + hFondM; 
 
         const vbW = wM * S;
         const vbH = hM * S;
         
-        // Marge haute (pour titre) et basse (pour semelle)
-        const marginTop = 0.5 * S; 
-
-        let svgC = `<svg width="100%" height="85%" viewBox="-${1*S} -${marginTop} ${vbW} ${vbH}" preserveAspectRatio="xMidYMid meet">
-            <text x="${(shift+maxGeo)*S/2}" y="-10" text-anchor="middle" font-size="14" fill="#666" font-weight="bold">COUPE TECHNIQUE</text>
+        // On agrandit la marge haute du ViewBox pour le texte
+        // Texte positionné à y=-15, ViewBox commence à -40
+        let svgC = `<svg width="100%" height="75%" viewBox="-${1*S} -40 ${vbW} ${vbH+60}" preserveAspectRatio="xMidYMid meet">
+            <text x="${(shift+maxGeo)*S/2}" y="-15" text-anchor="middle" font-size="8" fill="#666" font-weight="bold">COUPE TECHNIQUE</text>
             <defs><pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="10" fill="#8d6e63"/></pattern></defs>`;
 
         for(let i=0; i<nbRangs; i++) {
@@ -433,18 +427,18 @@
             const y = (nbRangs-1-i)*hBloc * S;
             const x = (i*hBloc*Math.tan(ang)) * S;
             svgC += `<rect x="${x}" y="${y}" width="${d*S}" height="${hBloc*S}" fill="#95a5a6" stroke="white" stroke-width="1"/>`;
-            if(p.geo>0) svgC += `<line x1="${x+d*S}" y1="${y+hBloc*S}" x2="${x+d*S+p.geo*S}" y2="${y+hBloc*S}" stroke="#2980b9" stroke-width="4"/>`;
+            if(p.geo>0) svgC += `<line x1="${x+d*S}" y1="${y+hBloc*S}" x2="${x+d*S+p.geo*S}" y2="${y+hBloc*S}" stroke="#2980b9" stroke-width="3"/>`;
         }
 
         const yBot = nbRangs*hBloc*S;
         const wSem = (state.product==='leromur'&&profile[0] ? profile[0].depth/100 : 0.30) + 0.30;
         svgC += `<rect x="${-0.15*S}" y="${yBot}" width="${wSem*S}" height="${hFondM*S}" fill="#7f8c8d"/>`;
-        svgC += `<text x="${-0.15*S}" y="${yBot+hFondM*S+15}" font-size="12" fill="#333">Semelle ${hFond}cm</text>`;
+        svgC += `<text x="${-0.15*S}" y="${yBot+hFondM*S+12}" font-size="8" fill="#333">Semelle ${hFond}cm</text>`;
         
         const yTN = (totH-hBuried)*S;
         svgC += `<rect x="-50" y="${yTN}" width="${vbW+100}" height="${(hBuried+hFondM)*S+50}" fill="url(#hatch)" opacity="0.2"/>`;
         svgC += `<line x1="-50" y1="${yTN}" x2="${vbW}" y2="${yTN}" stroke="#8d6e63" stroke-width="2"/>`;
-        svgC += `<text x="-40" y="${yTN-5}" font-size="12" fill="#8d6e63" font-weight="bold">TN (Fini)</text>`;
+        svgC += `<text x="-40" y="${yTN-5}" font-size="8" fill="#8d6e63" font-weight="bold">TN (Fini)</text>`;
         
         svgC += `</svg>`;
 
