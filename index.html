@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Bétoconcept V40 (Final)</title>
+    <title>Calculateur Bétoconcept V41 (Liste Inversée)</title>
     
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzI3YWU2MCIgcng9IjIwIi8+PHBhdGggZD0iTTIwIDcwIEwyMCAzMCBMODAgMzAgTDgwIDcwIFoiIGZpbGw9IndoaXRlIi8+PHJlY3QgeD0iMzAiIHk9IjQwIiB3aWR0aD0iNDAiIGhlaWdodD0iMjAiIGZpbGw9IiMyN2FlNjAiLz48L3N2Zz4=">
 
@@ -50,7 +50,6 @@
             box-sizing: border-box;
         }
         
-        /* HEADER */
         .app-header { display: flex; align-items: center; justify-content: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #eee; background: #fafafa; border-radius: 6px; padding-top: 5px; }
         #logo-img { height: 50px; width: auto; margin-right: 10px; object-fit: contain; }
         .app-title h1 { margin: 0; font-size: 1.2em; color: var(--secondary); font-weight: 800; text-transform: uppercase; }
@@ -75,22 +74,24 @@
         .shape-btn { flex: 1; border: 1px solid var(--primary); color: var(--primary); background: white; padding: 4px; border-radius: 4px; cursor: pointer; text-align: center; font-weight: bold; font-size: 0.85em; }
         .shape-btn.active { background: var(--primary); color: white; }
 
-        .nappe-list { border: 1px solid #eee; background: #fafafa; border-radius: 4px; padding: 5px; overflow-y: visible; margin-bottom: 15px; }
-        .nappe-row { display: grid; grid-template-columns: 70px 80px 1fr; align-items: center; gap: 5px; padding: 3px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+        /* MODIFICATION : Inversion de la liste (Bas = Rang 1) */
+        .nappe-list { 
+            border: 1px solid #eee; 
+            background: #fafafa; 
+            border-radius: 4px; 
+            padding: 5px; 
+            overflow-y: visible; 
+            margin-bottom: 15px; 
+            display: flex; 
+            flex-direction: column-reverse; /* C'est ici que la magie opère */
+        }
+        
+        .nappe-row { display: grid; grid-template-columns: 90px 80px 1fr; align-items: center; gap: 5px; padding: 3px; border-bottom: 1px solid #eee; font-size: 0.9em; border-top: 1px solid white; }
         .nappe-row.buried-row { background: #efebe9; border-left: 3px solid var(--buried); }
         .depth-select { padding: 2px; font-size: 0.85em; }
         .nappe-input { text-align: right; padding: 2px; }
         
-        #visu-container { 
-            flex-grow: 1; 
-            border: 1px dashed #bdc3c7; 
-            border-radius: 4px; 
-            background: white; 
-            position: relative; 
-            overflow: hidden; 
-            display: flex;
-            flex-direction: column;
-        }
+        #visu-container { flex-grow: 1; border: 1px dashed #bdc3c7; border-radius: 4px; background: white; position: relative; overflow: hidden; display: flex; flex-direction: column; }
         
         .res-block { background: #f8f9fa; padding: 8px; border-radius: 6px; margin-bottom: 6px; border-left: 3px solid var(--secondary); font-size: 0.9em; }
         .res-block.logistique { background: #eaf2f8; border-left-color: var(--info); }
@@ -110,12 +111,7 @@
             .res-block.logistique { background: #fff; border: 1px solid #ccc; }
             .remise-input { border: 1px solid #ccc !important; }
         }
-        @media (max-width: 1000px) { 
-            body { overflow: auto; height: auto; } 
-            .app-grid { display: block; height: auto; } 
-            .panel { margin-bottom: 20px; height: auto; } 
-            #visu-container { height: 400px; }
-        }
+        @media (max-width: 1000px) { body { overflow: auto; height: auto; } .app-grid { display: block; height: auto; } .panel { margin-bottom: 20px; height: auto; } #visu-container { height: 400px; } }
     </style>
 </head>
 <body>
@@ -124,7 +120,7 @@
     <div class="panel">
         <div class="app-header">
             <img id="logo-img" src="logo.png" alt="Bétoconcept" onerror="this.style.display='none'">
-            <div class="app-title"><h1>Bétoconcept</h1><span>Calculateur V40</span></div>
+            <div class="app-title"><h1>Bétoconcept</h1><span>Calculateur V41</span></div>
         </div>
 
         <div class="btn-group">
@@ -179,8 +175,14 @@
         </div>
 
         <h3>Coupe de Principe</h3>
-        <div style="font-size:0.8em; color:#666; display:flex; justify-content:space-between; padding:0 5px;"><span>Rang</span><span id="col-depth-title">Prof.</span><span>Nappe</span></div>
+        <div style="font-size:0.8em; color:#666; display:flex; justify-content:space-between; padding:0 5px;">
+            <span><small>(Arase ↑)</small> Rang</span>
+            <span id="col-depth-title">Prof.</span>
+            <span>Nappe</span>
+        </div>
         <div id="nappes-container" class="nappe-list"></div>
+        <div style="font-size:0.7em; color:#999; text-align:center; margin-top:-10px; margin-bottom:10px;">(Bas ↓)</div>
+        
         <div class="form-group">
             <label>Géotextile</label>
             <select id="typeGeo" onchange="updatePrixGeo()">
@@ -196,7 +198,7 @@
         <h2>2. Vue de Face & Coupe</h2>
         <div id="visu-container"></div>
         <div style="text-align:center; font-size:0.8em; color:#999; margin-top:5px;">
-            Echelle 1:1 • <span style="color:var(--buried);">Marron</span>=Aval • <span style="color:var(--grass);">Vert</span>=Amont (Soutènement)
+            Echelle 1:1 • <span style="color:var(--buried);">Marron</span>=Aval • <span style="color:var(--grass);">Vert</span>=Amont
         </div>
     </div>
 
@@ -292,15 +294,21 @@
             }
             let selHTML = (state.product==='leromur') ? `<select class="depth-select" onchange="calculer()"><option value="25" ${oldDepth=="25"?'selected':''}>25</option><option value="50" ${oldDepth=="50"?'selected':''}>50</option><option value="75" ${oldDepth=="75"?'selected':''}>75</option><option value="100" ${oldDepth=="100"?'selected':''}>100</option></select>` : `<span style="color:#ccc; font-size:0.8em">Std</span>`;
             
-            // MODIFICATION: Champ input nappe vide si rang 1 (i=0)
+            // SUPPRESSION CASE RANG 1 (BASE)
             let nappeInputHTML;
             if (i === 0) {
-                 nappeInputHTML = `<span style="color:#ccc; text-align:right;">—</span>`; // Pas de nappe rang 1
+                 nappeInputHTML = `<span style="color:#ccc; text-align:right; display:block; padding:2px;">—</span>`; 
             } else {
                  nappeInputHTML = `<input type="number" class="nappe-input" step="0.5" placeholder="0" value="${oldGeo>0?oldGeo:''}" oninput="calculer()">`;
             }
 
-            div.innerHTML=`<label>R${i+1} ${isBuried?'<small>(Ent)</small>':''}</label>${selHTML}${nappeInputHTML}`;
+            // AJOUT LABEL CLAIR
+            let label = `R${i+1}`;
+            if(i===0) label += " (Base)";
+            else if(i===nbRangs-1) label += " (Top)";
+            if(isBuried) label += ` <small style="color:${getComputedStyle(document.documentElement).getPropertyValue('--buried')}">(Ent)</small>`;
+
+            div.innerHTML=`<label style="line-height:1.1">${label}</label>${selHTML}${nappeInputHTML}`;
             container.appendChild(div);
         }
         refreshPrices();
@@ -396,7 +404,6 @@
         const hG_real = (Math.ceil((hG+hBuried)/hBloc)-nbBur)*hBloc;
         const hD_real = (Math.ceil((hD+hBuried)/hBloc)-nbBur)*hBloc;
 
-        // VUE FACE
         const scaleFace = 90 / Math.max(hG_real+hBuried, hD_real+hBuried, 1);
         const yTopG = 100 - ((hG_real+hBuried)*scaleFace);
         const yTopD = 100 - ((hD_real+hBuried)*scaleFace);
@@ -412,7 +419,6 @@
             <text x="50" y="115" font-size="8" text-anchor="middle">L=${L}m</text>
         </svg>`;
 
-        // COUPE TECHNIQUE
         const S = 30; 
         const maxGeo = Math.max(1, ...profile.map(p=>p.geo));
         const totH = nbRangs*hBloc;
@@ -436,7 +442,7 @@
             
             svgC += `<rect x="${x}" y="${y}" width="${d*S}" height="${hBloc*S}" fill="#95a5a6" stroke="white" stroke-width="0.3"/>`;
             if(p.geo>0 && i>0) {
-                // MODIFICATION : Trait nappe très fin (0.5)
+                // Geo fin à 0.5px
                 svgC += `<line x1="${x+d*S}" y1="${y+hBloc*S}" x2="${x+d*S+p.geo*S}" y2="${y+hBloc*S}" stroke="#2980b9" stroke-width="0.5"/>`;
             }
         }
