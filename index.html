@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Bétoconcept V37 (Ajustement Graphique)</title>
+    <title>Calculateur Bétoconcept V39 (Soutènement)</title>
     
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzI3YWU2MCIgcng9IjIwIi8+PHBhdGggZD0iTTIwIDcwIEwyMCAzMCBMODAgMzAgTDgwIDcwIFoiIGZpbGw9IndoaXRlIi8+PHJlY3QgeD0iMzAiIHk9IjQwIiB3aWR0aD0iNDAiIGhlaWdodD0iMjAiIGZpbGw9IiMyN2FlNjAiLz48L3N2Zz4=">
 
@@ -14,6 +14,7 @@
             --accent: #e67e22;
             --info: #2980b9;
             --buried: #8d6e63;
+            --grass: #27ae60;
             --bg: #f0f2f5;
             --panel: #ffffff;
         }
@@ -123,7 +124,7 @@
     <div class="panel">
         <div class="app-header">
             <img id="logo-img" src="logo.png" alt="Bétoconcept" onerror="this.style.display='none'">
-            <div class="app-title"><h1>Bétoconcept</h1><span>Calculateur V37</span></div>
+            <div class="app-title"><h1>Bétoconcept</h1><span>Calculateur V39</span></div>
         </div>
 
         <div class="btn-group">
@@ -195,7 +196,7 @@
         <h2>2. Vue de Face & Coupe</h2>
         <div id="visu-container"></div>
         <div style="text-align:center; font-size:0.8em; color:#999; margin-top:5px;">
-            Echelle Réelle (1:1) • <span style="color:var(--buried);">Marron</span>=Enterré • <span style="color:gray;">Gris</span>=Fondation
+            Echelle 1:1 • <span style="color:var(--buried);">Marron</span>=Aval • <span style="color:var(--grass);">Vert</span>=Amont (Soutènement)
         </div>
     </div>
 
@@ -386,8 +387,7 @@
         const hG_real = (Math.ceil((hG+hBuried)/hBloc)-nbBur)*hBloc;
         const hD_real = (Math.ceil((hD+hBuried)/hBloc)-nbBur)*hBloc;
 
-        // --- VUE DE FACE (25% hauteur) ---
-        // On zoom un peu plus
+        // VUE FACE
         const scaleFace = 90 / Math.max(hG_real+hBuried, hD_real+hBuried, 1);
         const yTopG = 100 - ((hG_real+hBuried)*scaleFace);
         const yTopD = 100 - ((hD_real+hBuried)*scaleFace);
@@ -403,7 +403,7 @@
             <text x="50" y="115" font-size="8" text-anchor="middle">L=${L}m</text>
         </svg>`;
 
-        // --- COUPE TECHNIQUE (75% hauteur) ---
+        // COUPE TECHNIQUE
         const S = 30; 
         const maxGeo = Math.max(1, ...profile.map(p=>p.geo));
         const totH = nbRangs*hBloc;
@@ -415,8 +415,6 @@
         const vbW = wM * S;
         const vbH = hM * S;
         
-        // On agrandit la marge haute du ViewBox pour le texte
-        // Texte positionné à y=-15, ViewBox commence à -40
         let svgC = `<svg width="100%" height="75%" viewBox="-${1*S} -40 ${vbW} ${vbH+60}" preserveAspectRatio="xMidYMid meet">
             <text x="${(shift+maxGeo)*S/2}" y="-15" text-anchor="middle" font-size="8" fill="#666" font-weight="bold">COUPE TECHNIQUE</text>
             <defs><pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="10" fill="#8d6e63"/></pattern></defs>`;
@@ -426,8 +424,12 @@
             let d=0.30; if(state.product==='leromur') d=p.depth/100;
             const y = (nbRangs-1-i)*hBloc * S;
             const x = (i*hBloc*Math.tan(ang)) * S;
-            svgC += `<rect x="${x}" y="${y}" width="${d*S}" height="${hBloc*S}" fill="#95a5a6" stroke="white" stroke-width="1"/>`;
-            if(p.geo>0) svgC += `<line x1="${x+d*S}" y1="${y+hBloc*S}" x2="${x+d*S+p.geo*S}" y2="${y+hBloc*S}" stroke="#2980b9" stroke-width="3"/>`;
+            // Ecart blocs réduit à 0.3
+            svgC += `<rect x="${x}" y="${y}" width="${d*S}" height="${hBloc*S}" fill="#95a5a6" stroke="white" stroke-width="0.3"/>`;
+            // Condition : Pas de géo sous le rang 1 (i=0)
+            if(p.geo>0 && i>0) {
+                svgC += `<line x1="${x+d*S}" y1="${y+hBloc*S}" x2="${x+d*S+p.geo*S}" y2="${y+hBloc*S}" stroke="#2980b9" stroke-width="3"/>`;
+            }
         }
 
         const yBot = nbRangs*hBloc*S;
@@ -435,10 +437,24 @@
         svgC += `<rect x="${-0.15*S}" y="${yBot}" width="${wSem*S}" height="${hFondM*S}" fill="#7f8c8d"/>`;
         svgC += `<text x="${-0.15*S}" y="${yBot+hFondM*S+12}" font-size="8" fill="#333">Semelle ${hFond}cm</text>`;
         
+        // --- TN AVAL (Marron, Gauche) ---
+        // On dessine le terrain naturel en bas à gauche jusqu'au pied du mur
         const yTN = (totH-hBuried)*S;
-        svgC += `<rect x="-50" y="${yTN}" width="${vbW+100}" height="${(hBuried+hFondM)*S+50}" fill="url(#hatch)" opacity="0.2"/>`;
-        svgC += `<line x1="-50" y1="${yTN}" x2="${vbW}" y2="${yTN}" stroke="#8d6e63" stroke-width="2"/>`;
-        svgC += `<text x="-40" y="${yTN-5}" font-size="8" fill="#8d6e63" font-weight="bold">TN (Fini)</text>`;
+        svgC += `<rect x="-50" y="${yTN}" width="50" height="${(hBuried+hFondM)*S+50}" fill="url(#hatch)" opacity="0.3"/>`;
+        svgC += `<line x1="-50" y1="${yTN}" x2="0" y2="${yTN}" stroke="#8d6e63" stroke-width="1.5"/>`;
+        svgC += `<text x="-45" y="${yTN-5}" font-size="9" fill="#8d6e63" font-weight="bold">TN Aval</text>`;
+
+        // --- TN AMONT (Vert, Haut) ---
+        // Le terrain arrive au niveau zéro (haut du mur) à l'arrière
+        const iTop = nbRangs - 1;
+        const pTop = profile[iTop] || {depth:50};
+        let dTop = 0.30;
+        if(state.product === 'leromur') dTop = pTop.depth/100;
+        const xTopBack = (iTop * hBloc * Math.tan(ang) + dTop) * S;
+        const yTop = 0; // Le haut du mur est à y=0 dans la boucle
+
+        svgC += `<line x1="${xTopBack}" y1="${yTop}" x2="${vbW}" y2="${yTop}" stroke="#27ae60" stroke-width="2"/>`;
+        svgC += `<text x="${xTopBack + 10}" y="${yTop - 5}" font-size="9" fill="#27ae60" font-weight="bold">TN Amont</text>`;
         
         svgC += `</svg>`;
 
