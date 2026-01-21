@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Bétoconcept V30 (Tarifs 2026)</title>
+    <title>Calculateur Bétoconcept V32 (Paramètres Flexibles)</title>
     
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzI3YWU2MCIgcng9IjIwIi8+PHBhdGggZD0iTTIwIDcwIEwyMCAzMCBMODAgMzAgTDgwIDcwIFoiIGZpbGw9IndoaXRlIi8+PHJlY3QgeD0iMzAiIHk9IjQwIiB3aWR0aD0iNDAiIGhlaWdodD0iMjAiIGZpbGw9IiMyN2FlNjAiLz48L3N2Zz4=">
 
@@ -13,29 +13,28 @@
             --secondary: #2c3e50;
             --accent: #e67e22;
             --info: #2980b9;
+            --buried: #8d6e63; /* Couleur terre */
             --bg: #f0f2f5;
             --panel: #ffffff;
         }
         
-        /* CORRECTION 1: Suppression du overflow hidden et height 100vh fixe */
         body { 
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
             margin: 0; 
             background: var(--bg); 
             color: var(--secondary); 
             font-size: 13px; 
-            min-height: 100vh; /* Utilise au moins toute la hauteur */
-            overflow-y: auto;  /* Autorise le scroll vertical */
+            min-height: 100vh;
+            overflow-y: auto;
         }
 
-        /* Adaptation de la grille pour être flexible */
         .app-grid { 
             display: grid; 
             grid-template-columns: 390px 1fr 340px; 
             gap: 15px; 
             padding: 15px; 
             box-sizing: border-box; 
-            align-items: start; /* Les panneaux ne s'étirent pas forcément en hauteur */
+            align-items: start;
             min-height: 100vh;
         }
 
@@ -46,7 +45,6 @@
             display: flex; 
             flex-direction: column; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
-            /* On enlève overflow-y auto ici pour laisser la page scroller globalement */
             height: auto; 
         }
         
@@ -77,7 +75,8 @@
         .shape-btn.active { background: var(--primary); color: white; }
 
         .nappe-list { border: 1px solid #eee; background: #fafafa; border-radius: 4px; padding: 5px; overflow-y: visible; margin-bottom: 20px; }
-        .nappe-row { display: grid; grid-template-columns: 70px 90px 1fr; align-items: center; gap: 8px; padding: 4px; border-bottom: 1px solid #eee; }
+        .nappe-row { display: grid; grid-template-columns: 80px 85px 1fr; align-items: center; gap: 5px; padding: 4px; border-bottom: 1px solid #eee; }
+        .nappe-row.buried-row { background: #efebe9; border-left: 3px solid var(--buried); }
         .depth-select { padding: 4px; font-size: 0.85em; background: white; border: 1px solid #ccc; }
         .nappe-input { width: 100%; text-align: right; padding: 4px; }
         
@@ -135,13 +134,12 @@
             <input type="text" id="client" placeholder="Référence chantier...">
         </div>
 
-        <h3>Forme du Mur</h3>
+        <h3>Configuration Mur</h3>
         <div class="shape-switch">
             <div class="shape-btn active" id="btn-rect" onclick="setShape('rect')">Mur Droit</div>
             <div class="shape-btn" id="btn-trap" onclick="setShape('trap')">Mur Trapèze</div>
         </div>
 
-        <h3>Produit & Paramètres</h3>
         <div class="form-group">
             <label>Type de bloc</label>
             <select id="produit" onchange="updateUI()">
@@ -150,9 +148,30 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label>Inclinaison / Fruit (°)</label>
-            <input type="number" id="inclinaison" value="0" min="0" max="45" step="1" oninput="calculer()" placeholder="Ex: 5">
+        <div class="form-group" style="display:flex; gap:10px;">
+            <div style="flex:1;">
+                <label>Inclinaison (°)</label>
+                <input type="number" id="inclinaison" value="0" min="0" max="45" step="1" oninput="calculer()" placeholder="Ex: 5">
+            </div>
+            <div style="flex:1;">
+                 <label>Longueur (m)</label>
+                 <input type="number" id="longueur" value="10" oninput="calculer()">
+            </div>
+        </div>
+
+        <h3>Fondation & Hors-Gel (Modifiables)</h3>
+        <div class="form-group" style="display:flex; gap:10px; background:#efebe9; padding:8px; border-radius:4px;">
+            <div style="flex:1">
+                <label style="font-size:0.8em; color:#5d4037;">Mise Hors Gel (cm)</label>
+                <input type="number" id="hors-gel" value="80" onchange="genererNappes()" style="border-color:#8d6e63; font-weight:bold;">
+            </div>
+            <div style="flex:1">
+                <label style="font-size:0.8em; color:#5d4037;">H. Semelle (cm)</label>
+                <input type="number" id="h-fondation" value="30" onchange="genererNappes()" style="border-color:#8d6e63; font-weight:bold;">
+            </div>
+        </div>
+        <div id="hors-gel-info" style="font-size:0.8em; color:var(--buried); margin-bottom:10px; font-style:italic; text-align:center;">
+            Calcul: 50 cm de mur enterré
         </div>
 
         <div class="color-switch">
@@ -164,22 +183,16 @@
             </label>
         </div>
 
-        <div class="form-group">
-            <label>Longueur Totale (m)</label>
-            <input type="number" id="longueur" value="10" oninput="calculer()">
-        </div>
-
         <div class="form-group" style="display:flex; gap:10px">
             <div style="flex:1">
-                <label id="lbl-h-gauche">Hauteur (m)</label>
+                <label id="lbl-h-gauche">H. Visible (m)</label>
                 <input type="number" id="hauteur" value="2.00" min="0" step="0.01" onchange="genererNappes()">
             </div>
             <div style="flex:1; display:none;" id="col-h-droite">
-                <label>Hauteur Droite (m)</label>
+                <label>H. Droite Visible (m)</label>
                 <input type="number" id="hauteur-droite" value="1.00" min="0" step="0.01" onchange="genererNappes()">
             </div>
         </div>
-        <div id="hauteur-info" style="font-size:0.85em; color:var(--info); margin-bottom:10px; font-style:italic;"></div>
 
         <h3>Coupe de Principe (Max)</h3>
         <div style="font-size:0.8em; color:#666; margin-bottom:5px; display:flex; justify-content:space-between; padding:0 5px;">
@@ -205,7 +218,8 @@
         <h2>2. Vue de Face & Coupe</h2>
         <div id="visu-container"></div>
         <div style="text-align:center; font-size:0.8em; color:#999; margin-top:5px;">
-            Le visuel de coupe prend en compte l'inclinaison.
+            <span style="color:var(--buried); font-weight:bold;">Zone Marron</span> = Partie enterrée | 
+            <span style="color:black; font-weight:bold;">TN</span> = Niveau Fini
         </div>
     </div>
 
@@ -213,7 +227,8 @@
         <h2>3. Chiffrage & Logistique</h2>
         
         <div class="res-block">
-            <div class="res-line"><span>Surface Mur (Réelle) :</span> <strong id="res-surf">0.00 m²</strong></div>
+            <div class="res-line"><span>Surface Visible :</span> <strong id="res-surf">0.00 m²</strong></div>
+            <div class="res-line"><span>Surface Enterrée :</span> <strong id="res-surf-buried" style="color:var(--buried)">0.00 m²</strong></div>
             <div class="res-line"><span id="lbl-qty">Quantité à facturer :</span> <strong id="res-qty">0</strong></div>
             <div class="res-line"><span>Total Géotextile :</span> <strong id="res-geo-total">0.00 m²</strong></div>
         </div>
@@ -267,7 +282,7 @@
         <div class="res-line"><span>Total Géo (Net) :</span> <span id="tot-geo">0.00 €</span></div>
         <div class="res-line"><span>Étude :</span> <span id="tot-etude">0.00 €</span></div>
         <div class="res-total">TOTAL HT NET : <span id="grand-total">0.00 €</span></div>
-        <div style="text-align:right; font-size:0.85em; color:var(--primary); margin-top:5px;">Soit <strong id="px-m2">0.00</strong> € HT / m²</div>
+        <div style="text-align:right; font-size:0.85em; color:var(--primary); margin-top:5px;">Soit <strong id="px-m2">0.00</strong> € HT / m² visible</div>
 
         <button class="no-print" onclick="window.print()" style="margin-top:auto; background:var(--primary); color:white; border:none; padding:12px; border-radius:4px; font-weight:bold; cursor:pointer;">IMPRIMER L'OFFRE</button>
     </div>
@@ -313,8 +328,8 @@
         document.getElementById('lbl-qty').innerText = isLeromur ? 'Total Barres (1m) :' : 'Total Blocs :';
         document.getElementById('col-depth-title').style.visibility = isLeromur ? 'visible' : 'hidden';
         document.getElementById('log-label-produit').innerText = isLeromur ? 'Besoin exact (' + CONSTANTS.PALETTE_LERO + 'u/pal) :' : 'Besoin exact (' + CONSTANTS.PALETTE_BETO + 'u/pal) :';
-        if(state.shape === 'trap') { document.getElementById('col-h-droite').style.display = 'block'; document.getElementById('lbl-h-gauche').innerText = 'Hauteur Gauche (m)'; } 
-        else { document.getElementById('col-h-droite').style.display = 'none'; document.getElementById('lbl-h-gauche').innerText = 'Hauteur (m)'; }
+        if(state.shape === 'trap') { document.getElementById('col-h-droite').style.display = 'block'; document.getElementById('lbl-h-gauche').innerText = 'H. Gauche Visible (m)'; } 
+        else { document.getElementById('col-h-droite').style.display = 'none'; document.getElementById('lbl-h-gauche').innerText = 'H. Visible (m)'; }
         genererNappes();
     }
     function refreshPrices() {
@@ -325,20 +340,41 @@
         const type = document.getElementById('typeGeo').value; const price = GEO_PRICES[type][state.mode];
         document.getElementById('pu-geo').value = price.toFixed(2); calculer();
     }
+    
+    function getBuriedHeight() {
+        const hg = parseFloat(document.getElementById('hors-gel').value) || 0;
+        const hf = parseFloat(document.getElementById('h-fondation').value) || 0;
+        // La hauteur enterrée = Profondeur Hors Gel - Epaisseur Semelle
+        const buried = Math.max(0, (hg - hf) / 100);
+        document.getElementById('hors-gel-info').innerHTML = `Calcul: <strong>${(buried*100).toFixed(0)} cm</strong> de mur enterré`;
+        return buried;
+    }
+
     function genererNappes() {
-        const hG = parseFloat(document.getElementById('hauteur').value) || 0;
-        let maxH = hG;
-        if(state.shape === 'trap') { const hD = parseFloat(document.getElementById('hauteur-droite').value) || 0; maxH = Math.max(hG, hD); }
+        const hVisible = parseFloat(document.getElementById('hauteur').value) || 0;
+        const hBuried = getBuriedHeight();
+        
+        let maxHVisible = hVisible;
+        if(state.shape === 'trap') { 
+            const hD = parseFloat(document.getElementById('hauteur-droite').value) || 0; 
+            maxHVisible = Math.max(hVisible, hD); 
+        }
+        
         const hElem = DATA[state.product].h;
-        let nbRangs = (maxH > 0) ? Math.ceil(maxH / hElem) : 0;
-        const infoDiv = document.getElementById('hauteur-info');
-        if (state.shape === 'rect') infoDiv.innerHTML = `→ Hauteur réelle : <strong>${(nbRangs*hElem).toFixed(2)} m</strong> (${nbRangs} rangs)`;
-        else infoDiv.innerHTML = `→ Définissez la coupe pour le point le plus haut (${(nbRangs*hElem).toFixed(2)} m)`;
+        const totalHeight = maxHVisible + hBuried;
+        let nbRangs = (totalHeight > 0) ? Math.ceil(totalHeight / hElem) : 0;
+        
         const container = document.getElementById('nappes-container');
         const oldRows = Array.from(container.querySelectorAll('.nappe-row'));
         container.innerHTML = '';
+        
         for(let i=0; i<nbRangs; i++) {
-            const div = document.createElement('div'); div.className = 'nappe-row';
+            const currentH = (i + 1) * hElem;
+            const isBuried = (currentH <= (hBuried + 0.05)); // Tolérance petite
+
+            const div = document.createElement('div'); 
+            div.className = isBuried ? 'nappe-row buried-row' : 'nappe-row';
+            
             let oldGeo = 0; let oldDepth = "50"; 
             if (i < oldRows.length) {
                 const inp = oldRows[i].querySelector('.inp-nappe'); if(inp) oldGeo = inp.value;
@@ -351,27 +387,40 @@
                     <option value="75" ${oldDepth=="75"?'selected':''}>75 cm</option>
                     <option value="100" ${oldDepth=="100"?'selected':''}>100 cm</option>
                 </select>` : `<span style="font-size:0.8em; color:#ccc;">Std</span>`;
-            div.innerHTML = `<label>Rang ${i+1}</label>${depthSelectorHTML}<input type="number" class="inp-nappe" step="0.5" placeholder="0" value="${oldGeo > 0 ? oldGeo : ''}" oninput="calculer()">`;
+            
+            const labelRang = isBuried ? `Rang ${i+1} <br><small>(Enterré)</small>` : `Rang ${i+1}`;
+            
+            div.innerHTML = `<label style="line-height:1.1">${labelRang}</label>${depthSelectorHTML}<input type="number" class="inp-nappe" step="0.5" placeholder="0" value="${oldGeo > 0 ? oldGeo : ''}" oninput="calculer()">`;
             container.appendChild(div);
         }
         refreshPrices();
     }
+
     function calculer() {
         const L = parseFloat(document.getElementById('longueur').value) || 0;
         const hElem = DATA[state.product].h;
-        const hG_input = parseFloat(document.getElementById('hauteur').value) || 0;
+        const hG_vis = parseFloat(document.getElementById('hauteur').value) || 0;
+        const hBuried = getBuriedHeight();
+        
         const rows = Array.from(document.querySelectorAll('.nappe-row'));
-        if(rows.length === 0 && hG_input > 0) return; 
+        if(rows.length === 0 && hG_vis > 0) return; 
+        
         const masterProfile = rows.map(r => {
             let d = 50;
             if(state.product === 'leromur') { const sel = r.querySelector('.depth-select'); if(sel) d = parseInt(sel.value); }
             const inp = r.querySelector('.inp-nappe'); const g = (inp) ? parseFloat(inp.value) || 0 : 0;
             return { depth: d, geo: g };
         });
-        let totalQty = 0; let totalSurface = 0; let totalGeoSurf = 0;
+
+        let totalQty = 0; let totalSurface = 0; let totalGeoSurf = 0; let totalBuriedSurf = 0;
+        const hG_total = hG_vis + hBuried;
         
         if (state.shape === 'rect') {
-            const nbRangs = rows.length; totalSurface = L * (nbRangs * hElem);
+            const nbRangs = rows.length; 
+            const surfTotale = L * (nbRangs * hElem); 
+            totalBuriedSurf = L * hBuried;
+            totalSurface = Math.max(0, surfTotale - totalBuriedSurf);
+
             masterProfile.forEach(p => {
                 if(state.product === 'leromur') {
                     const blocsParMle = CONSTANTS.LEROMUR_H * CONSTANTS.LEROMUR_BLOCS_M2; 
@@ -381,17 +430,26 @@
                 if(p.geo > 0) totalGeoSurf += (p.geo + CONSTANTS.RECOUVREMENT) * L;
             });
         } else {
-            const hD_input = parseFloat(document.getElementById('hauteur-droite').value) || 0;
+            const hD_vis = parseFloat(document.getElementById('hauteur-droite').value) || 0;
+            const hD_total = hD_vis + hBuried;
+            
             const step = 0.1; const steps = Math.ceil(L / step); const totalMasterRows = masterProfile.length;
+            
             if(steps > 0) {
                 for(let i=0; i<steps; i++) {
-                    const x = (i * step) + (step/2); const hLocal = hG_input + (hD_input - hG_input) * (x / L); const nbRangsLocal = Math.ceil(hLocal / hElem);
-                    totalSurface += (step * nbRangsLocal * hElem);
+                    const x = (i * step) + (step/2); 
+                    const hLocal = hG_total + (hD_total - hG_total) * (x / L); 
+                    const nbRangsLocal = Math.ceil(hLocal / hElem);
+                    
+                    const surfLocal = step * nbRangsLocal * hElem;
+                    const buriedLocal = step * hBuried;
+                    totalBuriedSurf += buriedLocal;
+                    totalSurface += Math.max(0, surfLocal - buriedLocal);
+
                     const startIndex = totalMasterRows - nbRangsLocal;
                     for(let r=0; r<nbRangsLocal; r++) {
-                        const masterIndex = startIndex + r;
-                        if(masterIndex >= 0 && masterIndex < totalMasterRows) {
-                            const p = masterProfile[masterIndex];
+                        const p = masterProfile[r]; 
+                        if(p) {
                             if(state.product === 'leromur') {
                                 const blocsUnit = (step * CONSTANTS.LEROMUR_H * CONSTANTS.LEROMUR_BLOCS_M2);
                                 let div = 1; if(p.depth === 25) div = 4; else if(p.depth === 50) div = 2;
@@ -433,6 +491,7 @@
         const grandTotal = totBloc + totGeo + etude;
         
         document.getElementById('res-surf').innerText = totalSurface.toFixed(2) + " m²";
+        document.getElementById('res-surf-buried').innerText = totalBuriedSurf.toFixed(2) + " m²";
         document.getElementById('res-qty').innerText = quantiteAchat;
         document.getElementById('log-detail-palettes').innerText = `${palettesPleines} pal. + ${resteUnites} u`;
         document.getElementById('log-pal-sup').innerText = palSup;
@@ -454,69 +513,78 @@
         document.getElementById('grand-total').innerText = grandTotal.toFixed(2) + " €";
         document.getElementById('px-m2').innerText = (totalSurface > 0 ? grandTotal / totalSurface : 0).toFixed(2);
         
-        if (rows.length > 0) drawDualVisu(rows.length, hElem, masterProfile);
+        if (rows.length > 0) drawDualVisu(rows.length, hElem, masterProfile, hBuried);
         else document.getElementById('visu-container').innerHTML = '';
     }
 
-    function drawDualVisu(nbRangs, hBloc, profile) {
+    function drawDualVisu(nbRangs, hBloc, profile, hBuried) {
         const container = document.getElementById('visu-container');
-        const hG = parseFloat(document.getElementById('hauteur').value) || 0;
-        const hD = (state.shape === 'trap') ? (parseFloat(document.getElementById('hauteur-droite').value)||0) : hG;
+        const hG_vis = parseFloat(document.getElementById('hauteur').value) || 0;
+        const hD_vis = (state.shape === 'trap') ? (parseFloat(document.getElementById('hauteur-droite').value)||0) : hG_vis;
         const L = parseFloat(document.getElementById('longueur').value) || 10;
         
-        // RECUPERATION DE L'ANGLE
         const angleDeg = parseFloat(document.getElementById('inclinaison').value) || 0;
         const angleRad = angleDeg * (Math.PI / 180);
 
+        const hG_tot = hG_vis + hBuried;
+        const hD_tot = hD_vis + hBuried;
+
         let svgFace = `<svg width="100%" height="100%" viewBox="-10 -20 120 120" preserveAspectRatio="xMidYMid meet">`;
-        svgFace += `<text x="50" y="-5" text-anchor="middle" font-size="8" fill="#666">Vue de Face (Pente)</text>`;
-        svgFace += `<line x1="0" y1="100" x2="100" y2="100" stroke="#7f8c8d" stroke-width="1"/>`;
-        const scaleY = 80 / Math.max(hG, hD, 0.1); const yG = 100 - (hG * scaleY); const yD = 100 - (hD * scaleY);
-        svgFace += `<polygon points="0,100 100,100 100,${yD} 0,${yG}" fill="#bdc3c7" stroke="#2c3e50" stroke-width="1"/>`;
-        svgFace += `<text x="-5" y="${yG}" font-size="6">${hG}m</text>`;
-        svgFace += `<text x="105" y="${yD}" font-size="6">${hD}m</text>`;
+        svgFace += `<text x="50" y="-5" text-anchor="middle" font-size="8" fill="#666">Vue de Face (Terrain Fini)</text>`;
+        
+        const maxH = Math.max(hG_tot, hD_tot, 0.1);
+        const scaleY = 80 / maxH; 
+        
+        const yBase = 100;
+        const yTopG = yBase - (hG_tot * scaleY);
+        const yTopD = yBase - (hD_tot * scaleY);
+        
+        const ySolG = yBase - (hBuried * scaleY);
+        const ySolD = yBase - (hBuried * scaleY); 
+        
+        svgFace += `<polygon points="0,${yBase} 100,${yBase} 100,${yTopD} 0,${yTopG}" fill="#bdc3c7" stroke="#2c3e50" stroke-width="1"/>`;
+        
+        svgFace += `<polygon points="-10,${yBase+10} 110,${yBase+10} 110,${ySolD} -10,${ySolG}" fill="url(#hatch)" stroke="none" opacity="0.3"/>`;
+        svgFace += `<line x1="-10" y1="${ySolG}" x2="110" y2="${ySolD}" stroke="#8d6e63" stroke-width="1" stroke-dasharray="2,2"/>`;
+        
+        svgFace += `<text x="-5" y="${yTopG}" font-size="6">${hG_vis}m</text>`;
+        svgFace += `<text x="105" y="${yTopD}" font-size="6">${hD_vis}m</text>`;
         svgFace += `<text x="50" y="110" font-size="6" text-anchor="middle">L=${L}m</text>`;
+        
+        svgFace += `<defs><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="4" transform="translate(0,0)" fill="#8d6e63"></rect></pattern></defs>`;
         svgFace += `</svg>`;
 
         let maxGeo = 0; if(profile && profile.length > 0) maxGeo = Math.max(2, ...profile.map(p=>p.geo)); else maxGeo = 2;
         
-        // Calcul pour agrandir la vue si le mur penche beaucoup
         const maxShift = (nbRangs * hBloc) * Math.tan(angleRad);
-        
-        const scX = 100 / (maxGeo + maxShift/2); // Ajustement échelle X
+        const scX = 100 / (maxGeo + maxShift/2); 
         const totalH = nbRangs * hBloc; 
         const scY = 120 / (totalH || 1); 
         
-        // ViewBox ajustée pour accepter le décalage à droite (pente)
         let svgCoupe = `<svg width="100%" height="100%" viewBox="-20 -20 180 150" preserveAspectRatio="xMidYMid meet">`;
-        svgCoupe += `<text x="50" y="-10" text-anchor="middle" font-size="8" fill="#666">Coupe Technique (${angleDeg}°)</text>`;
+        svgCoupe += `<defs><pattern id="hatch2" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="4" transform="translate(0,0)" fill="#8d6e63"></rect></pattern></defs>`;
         
-        // Ligne de sol
-        svgCoupe += `<path d="M-10,${totalH*scY} L160,${totalH*scY}" stroke="#7f8c8d" stroke-width="2"/>`;
+        svgCoupe += `<text x="50" y="-10" text-anchor="middle" font-size="8" fill="#666">Coupe Technique</text>`;
         
         for(let i=0; i<nbRangs; i++) {
             const p = profile[i] || {depth:50, geo:0};
-            // Calcul coordonnées
             const y = (nbRangs - 1 - i) * hBloc * scY; 
             const hPx = hBloc * scY; 
             const wPx = (p.depth / 100) * 20; 
-            
-            // Calcul du décalage horizontal dû au fruit (angle)
-            // Rang 0 (bas) = pas de décalage. Rang i (haut) = décalage.
-            const shiftMeters = (i * hBloc) * Math.tan(angleRad);
-            const shiftPx = shiftMeters * scX; // Conversion approximative pour le visuel
+            const shiftPx = (i * hBloc * Math.tan(angleRad)) * scX;
 
-            // Dessin Bloc
             svgCoupe += `<rect x="${shiftPx}" y="${y}" width="${Math.max(5, wPx)}" height="${hPx}" fill="#95a5a6" stroke="white" stroke-width="0.5"/>`;
-            
-            // Dessin Geo
             if(p.geo > 0) {
                 const lenPx = p.geo * scX;
                 svgCoupe += `<line x1="${shiftPx+2}" y1="${y}" x2="${shiftPx+2+lenPx}" y2="${y}" stroke="#2980b9" stroke-width="2"/>`;
             }
         }
         
-        // Ligne pointillée représentant le fruit arrière théorique
+        const yGround = (nbRangs * hBloc * scY) - (hBuried * scY);
+        svgCoupe += `<rect x="-20" y="${yGround}" width="200" height="${hBuried * scY + 20}" fill="url(#hatch2)" opacity="0.2"/>`;
+        svgCoupe += `<line x1="-20" y1="${yGround}" x2="160" y2="${yGround}" stroke="#8d6e63" stroke-width="1.5"/>`;
+        svgCoupe += `<text x="-18" y="${yGround - 2}" font-size="6" fill="#8d6e63" font-weight="bold">TN</text>`;
+
         if(angleDeg > 0) {
              const topShiftPx = (nbRangs * hBloc * Math.tan(angleRad)) * scX;
              svgCoupe += `<line x1="0" y1="${totalH*scY}" x2="${topShiftPx}" y2="0" stroke="red" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.5"/>`;
