@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Bétoconcept V34 (Proportions Réelles)</title>
+    <title>Calculateur Bétoconcept V35 (Compact)</title>
     
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzI3YWU2MCIgcng9IjIwIi8+PHBhdGggZD0iTTIwIDcwIEwyMCAzMCBMODAgMzAgTDgwIDcwIFoiIGZpbGw9IndoaXRlIi8+PHJlY3QgeD0iMzAiIHk9IjQwIiB3aWR0aD0iNDAiIGhlaWdodD0iMjAiIGZpbGw9IiMyN2FlNjAiLz48L3N2Zz4=">
 
@@ -81,7 +81,8 @@
         .depth-select { padding: 4px; font-size: 0.85em; background: white; border: 1px solid #ccc; }
         .nappe-input { width: 100%; text-align: right; padding: 4px; }
         
-        #visu-container { flex-grow: 1; min-height: 400px; border: 1px dashed #bdc3c7; border-radius: 4px; background: white; position: relative; overflow: hidden; }
+        /* MODIFICATION: Hauteur minimale réduite pour compacité */
+        #visu-container { flex-grow: 1; min-height: 300px; border: 1px dashed #bdc3c7; border-radius: 4px; background: white; position: relative; overflow: hidden; }
         
         .res-block { background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--secondary); }
         .res-block.logistique { background: #eaf2f8; border-left-color: var(--info); }
@@ -100,7 +101,7 @@
             .panel { margin-bottom: 20px; box-shadow: none; border: 1px solid #ddd; height: auto; overflow: visible; page-break-inside: avoid; }
             .btn-group, .no-print { display: none; }
             input, select { border: none; background: transparent; padding: 0; appearance: none; }
-            #visu-container { height: 600px; border: 1px solid #000; }
+            #visu-container { height: 500px; border: 1px solid #000; }
             .res-block.logistique { background: #fff; border: 1px solid #ccc; }
             .remise-input { border: 1px solid #ccc !important; }
         }
@@ -217,7 +218,7 @@
         <div style="text-align:center; font-size:0.8em; color:#999; margin-top:5px;">
             <span style="color:var(--buried); font-weight:bold;">Marron</span> = Enterré | 
             <span style="color:#7f8c8d; font-weight:bold;">Gris</span> = Fondation | 
-            <strong>Échelle réelle respectée</strong>
+            <strong>Échelle réelle</strong>
         </div>
     </div>
 
@@ -546,11 +547,10 @@
         const hG_vis_real = (nbRangsG - nbRangsBuried) * hBloc;
         const hD_vis_real = (nbRangsD - nbRangsBuried) * hBloc;
 
-        // ECHELLE UNIFORME : 1m = 50px
-        const SCALE = 50; 
+        // MODIFICATION ECHELLE: 35px = 1m (au lieu de 50) pour réduire la taille globale
+        const SCALE = 35; 
         
         // --- VUE DE FACE ---
-        // Largeur fictive 100% pour la vue de face (reste schématique mais proportionnelle en hauteur)
         const faceScaleY = 80 / Math.max(hG_tot, hD_tot, 1);
         const yBaseFace = 100;
         const yTopGFace = yBaseFace - (hG_tot * faceScaleY);
@@ -568,84 +568,60 @@
         svgFace += `<defs><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="4" transform="translate(0,0)" fill="#8d6e63"></rect></pattern></defs>`;
         svgFace += `</svg>`;
 
-        // --- COUPE TECHNIQUE (ISO-PROPORTIONNELLE) ---
+        // --- COUPE TECHNIQUE ---
         let maxGeoM = 0; if(profile && profile.length > 0) maxGeoM = Math.max(1, ...profile.map(p=>p.geo)); else maxGeoM = 1;
         const totalHeightM = nbRangs * hBloc;
         const maxShiftM = totalHeightM * Math.tan(angleRad);
         
-        // Largeur totale nécessaire en Mètres (Bloc + Geo + Pente)
-        // On prend un bloc large de 0.5m par sécurité pour la viewBox
         const totalWidthM = 1.0 + maxShiftM + maxGeoM; 
-        
-        // Hauteur totale nécessaire en Mètres (Mur + Fondation)
         const totalTotalHeightM = totalHeightM + hFondationM;
 
-        // Dimensions en Pixels
         const vbWidth = totalWidthM * SCALE;
-        const vbHeight = (totalTotalHeightM + 0.5) * SCALE; // +0.5m de marge
+        const vbHeight = (totalTotalHeightM + 0.5) * SCALE; 
 
         let svgCoupe = `<svg width="100%" height="100%" viewBox="-${0.5*SCALE} -${0.2*SCALE} ${vbWidth} ${vbHeight}" preserveAspectRatio="xMidYMid meet">`;
         svgCoupe += `<defs><pattern id="hatch2" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="10" transform="translate(0,0)" fill="#8d6e63"></rect></pattern></defs>`;
         
         svgCoupe += `<text x="${(vbWidth/2)-20}" y="0" text-anchor="middle" font-size="12" fill="#666">Coupe Technique (1:1)</text>`;
         
-        // Dessin des blocs
-        // Point de départ Y (le bas du mur = totalHeightM * SCALE)
         for(let i=0; i<nbRangs; i++) {
             const p = profile[i] || {depth:50, geo:0};
-            // Déterminer profondeur visuelle (Mètres)
-            let depthM = 0.30; // Default Betoatlas
+            let depthM = 0.30; 
             if(state.product === 'leromur') depthM = p.depth / 100;
-            else depthM = 0.30; // Visuel Betoatlas force 30cm
+            else depthM = 0.30; 
 
-            // Coordonnées
-            const yM = (nbRangs - 1 - i) * hBloc; // Y en mètres depuis le haut (sans fondation)
+            const yM = (nbRangs - 1 - i) * hBloc; 
             const yPx = yM * SCALE;
             const hPx = hBloc * SCALE;
             const wPx = depthM * SCALE;
-            
-            // Décalage fruit
             const shiftM = (i * hBloc * Math.tan(angleRad));
             const shiftPx = shiftM * SCALE;
 
             svgCoupe += `<rect x="${shiftPx}" y="${yPx}" width="${wPx}" height="${hPx}" fill="#95a5a6" stroke="white" stroke-width="1"/>`;
-            
-            // Geo
             if(p.geo > 0) {
                 const lenPx = p.geo * SCALE;
-                // Geo part du milieu ou fond du bloc ? Généralement coincé entre les blocs. 
-                // On le dessine partant de l'arrière du bloc.
                 const startX = shiftPx + wPx; 
                 svgCoupe += `<line x1="${startX}" y1="${yPx + hPx}" x2="${startX + lenPx}" y2="${yPx + hPx}" stroke="#2980b9" stroke-width="3"/>`;
             }
         }
         
-        // Dessin Fondation
-        // Elle est sous le rang 0 (i=0).
-        // Rang 0 est à y = (nbRangs - 1)*hBloc. Non, rang 0 est en bas.
-        // y du bas du mur = nbRangs * hBloc * SCALE.
         const yBottomWallPx = totalHeightM * SCALE;
         const hFondationPx = hFondationM * SCALE;
-        // Largeur semelle : on prend la largeur du bloc du bas + 30cm (0.3m)
         let bottomBlockDepthM = 0.30;
         if(state.product === 'leromur' && profile[0]) bottomBlockDepthM = profile[0].depth / 100;
         const wFondationM = bottomBlockDepthM + 0.30;
         const wFondationPx = wFondationM * SCALE;
-        // Centrée sous le bloc du bas (qui est à x=0)
-        const xFondationPx = -0.15 * SCALE; // -15cm
+        const xFondationPx = -0.15 * SCALE; 
 
         svgCoupe += `<rect x="${xFondationPx}" y="${yBottomWallPx}" width="${wFondationPx}" height="${hFondationPx}" fill="#7f8c8d" stroke="none" />`;
         svgCoupe += `<text x="${xFondationPx}" y="${yBottomWallPx + hFondationPx/2 + 5}" font-size="10" fill="#eee">Semelle ${hFondation}cm</text>`;
 
-        // Sol TN
         const yGroundM = (totalHeightM - hBuried);
         const yGroundPx = yGroundM * SCALE;
-        // Zone hachurée
         svgCoupe += `<rect x="-50" y="${yGroundPx}" width="${vbWidth+50}" height="${(hBuried + hFondationM)*SCALE + 50}" fill="url(#hatch2)" opacity="0.2"/>`;
         svgCoupe += `<line x1="-50" y1="${yGroundPx}" x2="${vbWidth}" y2="${yGroundPx}" stroke="#8d6e63" stroke-width="2"/>`;
         svgCoupe += `<text x="-40" y="${yGroundPx - 5}" font-size="12" fill="#8d6e63" font-weight="bold">TN</text>`;
 
-        // Ligne rouge pointillée (fruit)
         if(angleDeg > 0) {
              const topShiftPx = maxShiftM * SCALE;
              svgCoupe += `<line x1="0" y1="${yBottomWallPx}" x2="${topShiftPx}" y2="0" stroke="red" stroke-width="1" stroke-dasharray="5,5" opacity="0.5"/>`;
