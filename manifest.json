@@ -1,0 +1,15 @@
+{
+  "name": "Calculateur Bétoconcept",
+  "short_name": "Bétoconcept",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#27ae60",
+  "icons": [
+    {
+      "src": "Logo Betoconcept.png",
+      "type": "image/png",
+      "sizes": "any"
+    }
+  ]
+}

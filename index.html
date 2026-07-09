@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur Bétoconcept V41 (Liste Inversée)</title>
+    
+    <link rel="icon" href="Logo Betoconcept.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#27ae60">
+    <link rel="apple-touch-icon" href="Logo Betoconcept.png">
+
+    <style>
+        :root {
+            --primary: #27ae60;
+            --secondary: #2c3e50;
+            --accent: #e67e22;
+            --info: #2980b9;
+            --buried: #8d6e63;
+            --grass: #27ae60;
+            --bg: #f0f2f5;
+            --panel: #ffffff;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--secondary); 
+            font-size: 13px; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        .app-grid { 
+            display: grid; 
+            grid-template-columns: 380px 1fr 320px; 
+            gap: 15px; 
+            padding: 10px; 
+            box-sizing: border-box; 
+            height: 100vh;
+        }
+
+        .panel { 
+            background: var(--panel); 
+            border-radius: 8px; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+            overflow-y: auto; 
+            height: 100%; 
+            box-sizing: border-box;
+        }
+        
+        .app-header { display: flex; align-items: center; justify-content: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #eee; background: #fafafa; border-radius: 6px; padding-top: 5px; }
+        #logo-img { height: 50px; width: auto; margin-right: 10px; object-fit: contain; }
+        .app-title h1 { margin: 0; font-size: 1.2em; color: var(--secondary); font-weight: 800; text-transform: uppercase; }
+        .app-title span { font-size: 0.8em; color: var(--primary); font-weight: 600; }
+
+        h2 { font-size: 1em; border-bottom: 2px solid var(--primary); padding-bottom: 5px; margin: 0 0 10px 0; color: var(--primary); text-transform: uppercase; }
+        h3 { font-size: 0.9em; color: #7f8c8d; margin: 10px 0 5px 0; font-weight: 600; text-transform: uppercase; border-top: 1px solid #eee; padding-top: 8px; }
+        
+        .form-group { margin-bottom: 8px; }
+        label { display: block; margin-bottom: 3px; font-weight: 600; font-size: 0.85em; }
+        input, select { width: 100%; padding: 5px; border: 1px solid #bdc3c7; border-radius: 4px; box-sizing: border-box; font-size: 0.95em; }
+        
+        .btn-group { display: flex; border: 1px solid #bdc3c7; border-radius: 4px; overflow: hidden; margin-bottom: 10px; flex-shrink: 0; }
+        .btn-mode { flex: 1; padding: 6px; border: none; background: #f8f9fa; cursor: pointer; font-weight: 600; font-size: 0.8em; }
+        .btn-mode.active { background: var(--secondary); color: white; }
+        
+        .color-switch { display: flex; gap: 10px; margin-bottom: 8px; background: #f8f9fa; padding: 4px; border-radius: 4px; }
+        .radio-label { flex: 1; text-align: center; cursor: pointer; padding: 4px; border-radius: 4px; font-size: 0.85em; }
+        .radio-label.checked { background: var(--accent); color: white; font-weight: bold; }
+        
+        .shape-switch { display: flex; gap: 5px; margin-bottom: 10px; background: #e8f5e9; padding: 4px; border-radius: 4px; }
+        .shape-btn { flex: 1; border: 1px solid var(--primary); color: var(--primary); background: white; padding: 4px; border-radius: 4px; cursor: pointer; text-align: center; font-weight: bold; font-size: 0.85em; }
+        .shape-btn.active { background: var(--primary); color: white; }
+
+        .nappe-list { border: 1px solid #eee; background: #fafafa; border-radius: 4px; padding: 5px; overflow-y: visible; margin-bottom: 15px; display: flex; flex-direction: column-reverse; }
+        .nappe-row { display: grid; grid-template-columns: 90px 80px 1fr; align-items: center; gap: 5px; padding: 3px; border-bottom: 1px solid #eee; font-size: 0.9em; border-top: 1px solid white; }
+        .nappe-row.buried-row { background: #efebe9; border-left: 3px solid var(--buried); }
+        .depth-select { padding: 2px; font-size: 0.85em; }
+        .nappe-input { text-align: right; padding: 2px; }
+        
+        #visu-container { flex-grow: 1; border: 1px dashed #bdc3c7; border-radius: 4px; background: white; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        
+        .res-block { background: #f8f9fa; padding: 8px; border-radius: 6px; margin-bottom: 6px; border-left: 3px solid var(--secondary); font-size: 0.9em; }
+        .res-block.logistique { background: #eaf2f8; border-left-color: var(--info); }
+        .res-line { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .res-total { font-size: 1.1em; font-weight: bold; color: var(--primary); text-align: right; margin-top: 5px; border-top: 1px solid #ddd; padding-top: 5px; }
+        .price-input { width: 60px; text-align: right; padding: 2px 5px; }
+        .height-proposal { font-size: 0.8em; color: var(--info); background: #eaf2f8; padding: 3px; border-radius: 4px; margin-top: 3px; border-left: 3px solid var(--info); }
+        .remise-input { width: 40px !important; text-align: center; border: 1px solid var(--accent) !important; color: var(--accent); font-weight: bold; }
+
+        .save-btn { padding: 5px 12px; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .save-btn:hover { background: #219a52; }
+
+        @media print {
+            @page { size: A4 landscape; margin: 5mm; }
+            html, body { background: var(--bg) !important; height: 100vh !important; width: 100vw !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; font-size: 12px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .app-grid { display: grid !important; grid-template-columns: 360px 1fr 310px !important; gap: 12px !important; padding: 0 !important; height: calc(100vh - 10mm) !important; width: 100% !important; box-sizing: border-box !important; }
+            .panel { background: var(--panel) !important; border-radius: 8px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; border: none !important; margin: 0 !important; padding: 12px !important; height: 100% !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; box-sizing: border-box !important; page-break-inside: avoid !important; }
+            .btn-group, .no-print { display: none !important; }
+            input, select { border: 1px solid #bdc3c7 !important; background: white !important; padding: 4px !important; appearance: auto !important; box-sizing: border-box !important; }
+            #visu-container { flex-grow: 1 !important; border: 1px dashed #bdc3c7 !important; background: white !important; min-height: 0 !important; }
+        }
+        @media (max-width: 1000px) { body { overflow: auto; height: auto; } .app-grid { display: block; height: auto; } .panel { margin-bottom: 20px; height: auto; } #visu-container { height: 400px; } }
+    </style>
+</head>
+<body>
+
+<div class="app-grid" id="main-app">
+    <div class="panel">
+        <div class="app-header">
+            <img id="logo-img" src="Logo Betoconcept.png" alt="Bétoconcept" onerror="this.style.display='none'">
+            <div class="app-title"><h1>Bétoconcept</h1><span>Calculateur V41</span></div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-mode active" onclick="setTarif('negoce', this)">Négoce</button>
+            <button class="btn-mode" onclick="setTarif('entreprise', this)">Entreprise</button>
+            <button class="btn-mode" onclick="setTarif('particulier', this)">Particulier</button>
+        </div>
+
+        <div class="form-group" style="background: #e8f4f8; padding: 8px; border-radius: 6px; border: 1px solid #d4e6f1;">
+            <label style="color: var(--info);">Gestion des Affaires</label>
+            <div style="display:flex; gap:5px; margin-bottom: 5px;">
+                <input type="text" id="client" placeholder="Nom du chantier / client..." style="flex:1;">
+                <button class="save-btn" onclick="sauvegarderConfig()">💾 Sauver</button>
+            </div>
+            <select id="liste-sauvegardes" onchange="chargerConfig(this.value)">
+                <option value="">-- Charger une affaire enregistrée --</option>
+            </select>
+        </div>
+
+        <div class="shape-switch">
+            <div class="shape-btn active" id="btn-rect" onclick="setShape('rect')">Mur Droit</div>
+            <div class="shape-btn" id="btn-trap" onclick="setShape('trap')">Mur Trapèze</div>
+            <div class="shape-btn" id="btn-troncons" onclick="setShape('troncons')">Par Tronçons</div>
+        </div>
+
+        <div class="form-group">
+            <label>Produit</label>
+            <select id="produit" onchange="updateUI()">
+                <option value="leromur">LEROMUR (H=13cm)</option>
+                <option value="betoatlas">BETOATLAS (H=20cm)</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="display:flex; gap:5px; align-items:flex-start;">
+            <div style="flex:1;">
+                <label>Fruit (°)</label>
+                <input type="number" id="inclinaison" value="0" min="0" max="45" oninput="calculer()">
+                <label style="font-size:0.7em; margin-top:3px; display:flex; align-items:center; gap:3px; cursor:pointer;">
+                    <input type="checkbox" id="fruit-base" onchange="calculer()" style="width:auto;"> Inclinaison par la base (Blocs superposés)
+                </label>
+            </div>
+            <div style="flex:1;" id="col-longueur"><label>Long. (m)</label><input type="number" id="longueur" value="10" oninput="calculer()"></div>
+        </div>
+
+        <div id="mode-classique">
+            <div class="form-group" style="display:flex; gap:5px; align-items:flex-start;">
+                <div style="flex:1">
+                    <label id="lbl-h-gauche">H. Visible</label>
+                    <input type="number" id="hauteur" value="2.00" min="0" step="0.01" onchange="genererNappes()">
+                    <div id="proposal-gauche" class="height-proposal" style="display:none"></div>
+                </div>
+                <div style="flex:1; display:none;" id="col-h-droite">
+                    <label>H. Droite</label>
+                    <input type="number" id="hauteur-droite" value="1.00" min="0" step="0.01" onchange="genererNappes()">
+                    <div id="proposal-droite" class="height-proposal" style="display:none"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="mode-troncons" style="display:none; background:#e8f4f8; padding:8px; border-radius:6px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <label style="color:var(--info); margin:0;">Définition des tronçons (Trapèze)</label>
+                <button onclick="ajouterTroncon()" style="background:var(--info); color:white; border:none; border-radius:4px; padding:2px 8px; cursor:pointer; font-size:0.8em;">+ Ajouter</button>
+            </div>
+            
+            <div id="liste-troncons" style="display:flex; flex-direction:column; gap:5px;">
+                </div>
+            
+            <div style="margin-top:8px; padding:6px 10px; background:white; border:1px solid #d4e6f1; border-radius:4px; box-shadow:inset 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="font-size:0.85em; font-weight:bold; color:var(--info); margin-bottom:4px; border-bottom:1px solid #eee; padding-bottom:3px;">
+                    📊 Détail Sélection (<span id="sel-count">0</span> tronçons)
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.85em; font-weight:bold;">
+                    <span style="color:var(--secondary);">Blocs: <span id="sel-blocs" style="color:var(--primary); font-size:1.1em;">0</span></span>
+                    <span style="color:var(--secondary);">Géo: <span id="sel-geo" style="color:var(--primary); font-size:1.1em;">0 ml</span></span>
+                </div>
+            </div>
+
+            <div style="font-size:0.8em; color:#666; margin-top:5px; text-align:right;">
+                <em id="info-troncons-tot">Long. Totale (tous tronçons): 0.00m</em>
+            </div>
+        </div>
+
+        <h3>Fondation & Hors-Gel</h3>
+        <div class="form-group" style="display:flex; gap:5px; background:#efebe9; padding:5px; border-radius:4px;">
+            <div style="flex:1"><label style="color:#5d4037;">Hors Gel (cm)</label><input type="number" id="hors-gel" value="80" onchange="genererNappes()" style="border-color:#8d6e63;"></div>
+            <div style="flex:1"><label style="color:#5d4037;">Semelle (cm)</label><input type="number" id="h-fondation" value="30" onchange="genererNappes()" style="border-color:#8d6e63;"></div>
+        </div>
+        <div id="hors-gel-info" style="font-size:0.8em; color:var(--buried); margin-bottom:5px; font-style:italic;"></div>
+
+        <div class="color-switch">
+            <label class="radio-label checked" onclick="setColor('gris', this)"><input type="radio" name="color" checked> Gris</label>
+            <label class="radio-label" onclick="setColor('couleur', this)"><input type="radio" name="color"> Couleur</label>
+        </div>
+
+        <h3>Coupe de Principe</h3>
+        <div style="font-size:0.8em; color:#666; display:flex; justify-content:space-between; padding:0 5px;">
+            <span><small>(Arase ↑)</small> Rang</span>
+            <span id="col-depth-title">Prof.</span>
+            <span>Nappe</span>
+        </div>
+        <div id="nappes-container" class="nappe-list"></div>
+        <div style="font-size:0.7em; color:#999; text-align:center; margin-top:-10px; margin-bottom:10px;">(Bas ↓)</div>
+        
+        <div class="form-group">
+            <label>Géotextile</label>
+            <select id="typeGeo" onchange="updatePrixGeo()">
+                <option value="50">Bétonap 50/50</option>
+                <option value="100" selected>Bétonap 100/50</option>
+                <option value="150">Bétonap 150/50</option>
+                <option value="200">Bétonap 200/50</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>2. Vue de Face & Coupe</h2>
+        <div id="visu-container"></div>
+        <div style="text-align:center; font-size:0.8em; color:#999; margin-top:5px;">
+            Echelle 1:1 • <span style="color:var(--buried);">Marron</span>=Aval • <span style="color:var(--grass);">Vert</span>=Amont
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>3. Chiffrage</h2>
+        <div class="res-block">
+            <div class="res-line"><span>Surf. Visible:</span> <strong id="res-surf">0.00 m²</strong></div>
+            <div class="res-line"><span>Surf. Enterrée:</span> <strong id="res-surf-buried" style="color:var(--buried)">0.00 m²</strong></div>
+            <div class="res-line"><span id="lbl-qty">Quantité:</span> <strong id="res-qty">0</strong></div>
+        </div>
+        <div class="res-block logistique">
+            <div style="font-weight:bold; color:var(--info); font-size:0.9em;">📦 Logistique</div>
+            <div class="res-line" style="justify-content:flex-end; font-weight:bold;"><span id="log-detail-palettes">0 pal</span></div>
+            <div class="log-full-pallet">
+                <div>Option Pal. Complètes:</div>
+                <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                    <span id="log-pal-sup">0 Pal</span><span id="log-items-sup">0 u</span>
+                </div>
+            </div>
+            <div class="log-full-pallet">
+                <div>Géotextile (L=5.30m):</div>
+                <div class="res-line"><span>Métré:</span> <strong id="log-ml">0 ml</strong></div>
+                <div style="text-align:right; font-weight:bold; font-size:0.9em;" id="log-detail-rouleaux"></div>
+            </div>
+        </div>
+        <div class="form-group"><label>Étude (€ HT)</label><input type="number" id="cout-etude" value="0" oninput="calculer()"></div>
+        <div class="res-line"><span>P.U. Bloc:</span> <input class="price-input" id="pu-bloc" type="number" step="0.01" onchange="calculer()"> €</div>
+        <div class="res-line"><span>P.U. Géo:</span> <input class="price-input" id="pu-geo" type="number" step="0.01" onchange="calculer()"> €</div>
+        <hr>
+        <div class="res-line" style="color:var(--accent);"><span style="font-weight:bold;">Remise Bloc:</span><span><input type="number" id="remise-bloc" class="remise-input" value="0" min="0" max="100" oninput="calculer()"> %</span></div>
+        <div class="res-line" style="color:var(--accent);"><span style="font-weight:bold;">Remise Géo:</span><span><input type="number" id="remise-geo" class="remise-input" value="0" min="0" max="100" oninput="calculer()"> %</span></div>
+        <hr>
+        <div class="res-line"><span>Total Blocs:</span> <span id="tot-blocs">0.00 €</span></div>
+        <div class="res-line"><span>Total Géo:</span> <span id="tot-geo">0.00 €</span></div>
+        <div class="res-total">NET HT : <span id="grand-total">0.00 €</span></div>
+        <div style="text-align:right; font-size:0.85em; color:var(--primary); margin-bottom: 15px;">Soit <strong id="px-m2">0.00</strong> € HT / m²</div>
+        
+        <div class="no-print" style="margin-top:auto;">
+            <button onclick="window.print()" style="width:100%; background:#95a5a6; color:white; border:none; padding:12px; border-radius:4px; font-weight:bold; cursor:pointer;">🖨️ IMPRIMER / ENREGISTRER EN PDF</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const CONSTANTS = { LEROMUR_BLOCS_M2: 38.5, LEROMUR_H: 0.13, BETOATLAS_H: 0.20, BETOATLAS_BLOCS_M2: 20, RECOUVREMENT: 0.40, RECOUVREMENT_LATERAL: 0.20, PALETTE_LERO: 24, PALETTE_BETO: 48, LARGEUR_ROULEAU: 5.30, LONGUEUR_ROULEAU: 100 };
+    const DATA = { leromur: { h: CONSTANTS.LEROMUR_H, prices: { gris: [5.98, 6.70, 7.24], couleur: [7.37, 8.25, 8.91] } }, betoatlas: { h: CONSTANTS.BETOATLAS_H, prices: { gris: [3.99, 4.47, 4.83], couleur: [4.63, 5.19, 5.61] } } };
+    const GEO_PRICES = { "50": [3.88, 4.35, 4.70], "100": [4.68, 5.24, 5.66], "150": [5.53, 6.19, 6.69], "200": [6.57, 7.36, 7.95] };
+    
+    let state = { mode: 0, color: 'gris', product: 'leromur', shape: 'rect' };
+    let loadedNappes = null; 
+    let tronconId = 0;
+    let activeTroncons = new Set(); 
+
+    function setTarif(type, btn) { const map={'negoce':0,'entreprise':1,'particulier':2}; state.mode=map[type]; document.querySelectorAll('.btn-mode').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); refreshPrices(); calculer(); }
+    function setColor(col, lbl) { state.color=col; document.querySelectorAll('.radio-label').forEach(l=>l.classList.remove('checked')); lbl.classList.add('checked'); refreshPrices(); calculer(); }
+    
+    function setShape(shape) { 
+        state.shape = shape; 
+        document.getElementById('btn-rect').className = (shape==='rect' ? 'shape-btn active' : 'shape-btn'); 
+        document.getElementById('btn-trap').className = (shape==='trap' ? 'shape-btn active' : 'shape-btn'); 
+        document.getElementById('btn-troncons').className = (shape==='troncons' ? 'shape-btn active' : 'shape-btn'); 
+        
+        if(shape === 'troncons') {
+            document.getElementById('mode-classique').style.display = 'none';
+            document.getElementById('col-longueur').style.display = 'none';
+            document.getElementById('mode-troncons').style.display = 'block';
+            if(document.getElementById('liste-troncons').children.length === 0) ajouterTroncon();
+        } else {
+            document.getElementById('mode-classique').style.display = 'block';
+            document.getElementById('col-longueur').style.display = 'block';
+            document.getElementById('mode-troncons').style.display = 'none';
+        }
+        updateUI(); 
+    }
+
+    function toggleTroncon(id) {
+        if(activeTroncons.has(id)) {
+            activeTroncons.delete(id);
+        } else {
+            activeTroncons.add(id);
+        }
+        document.querySelectorAll('#liste-troncons > div').forEach(div => {
+            const tId = parseInt(div.getAttribute('data-id'));
+            div.style.backgroundColor = activeTroncons.has(tId) ? '#d6eaf8' : 'transparent';
+        });
+        calculer(); 
+    }
+    
+    function ajouterTroncon(l = 1.00, hg = 1.00, hd = 1.00) {
+        tronconId++;
+        if (activeTroncons.size === 0) activeTroncons.add(tronconId);
+
+        const container = document.getElementById('liste-troncons');
+        const div = document.createElement('div');
+        div.id = `troncon-${tronconId}`;
+        div.setAttribute('data-id', tronconId);
+        div.style.cssText = "display:flex; gap:3px; align-items:center; padding:3px; border-radius:4px;";
+        
+        if (activeTroncons.has(tronconId)) div.style.backgroundColor = '#d6eaf8';
+
+        div.innerHTML = `
+            <label style="cursor:pointer; display:flex; align-items:center; gap:2px;" title="Cocher pour visualiser ce tronçon">
+                <input type="checkbox" onchange="toggleTroncon(${tronconId})" ${activeTroncons.has(tronconId) ? 'checked' : ''}>
+                <span style="font-size:0.75em; font-weight:bold; width:15px;">#${tronconId}</span>
+            </label>
+            <input type="number" class="t-long" placeholder="L(m)" value="${l}" step="0.1" oninput="genererNappes(); calculer();" style="flex:1; min-width:0;" title="Longueur">
+            <input type="number" class="t-haut-g" placeholder="H.g(m)" value="${hg}" step="0.1" oninput="genererNappes(); calculer();" style="flex:1; min-width:0;" title="Hauteur Gauche">
+            <input type="number" class="t-haut-d" placeholder="H.d(m)" value="${hd}" step="0.1" oninput="genererNappes(); calculer();" style="flex:1; min-width:0;" title="Hauteur Droite">
+            <button onclick="supprimerTroncon(${tronconId})" style="background:#e74c3c; color:white; border:none; border-radius:4px; padding:4px 6px; cursor:pointer;">X</button>
+        `;
+        container.appendChild(div);
+        genererNappes();
+        calculer();
+    }
+
+    function supprimerTroncon(id) {
+        document.getElementById(`troncon-${id}`).remove();
+        activeTroncons.delete(id);
+        
+        if (activeTroncons.size === 0) {
+            const first = document.querySelector('#liste-troncons > div');
+            if (first) {
+                const newId = parseInt(first.getAttribute('data-id'));
+                const cb = first.querySelector('input[type="checkbox"]');
+                if (cb) cb.checked = true;
+                activeTroncons.add(newId);
+            }
+        }
+        
+        genererNappes();
+        calculer();
+    }
+
+    function getDonneesTroncons() {
+        const troncons = [];
+        let lTotale = 0;
+        let hMax = 0;
+        let highestActiveH = 0; 
+        
+        document.querySelectorAll('#liste-troncons > div').forEach(div => {
+            const tId = parseInt(div.getAttribute('data-id'));
+            const l = parseFloat(div.querySelector('.t-long').value) || 0;
+            const hg = parseFloat(div.querySelector('.t-haut-g').value) || 0;
+            const hd = parseFloat(div.querySelector('.t-haut-d').value) || 0;
+            troncons.push({id: tId, l: l, hg: hg, hd: hd});
+            lTotale += l;
+            
+            const localMax = Math.max(hg, hd);
+            if(localMax > hMax) hMax = localMax;
+            
+            if(activeTroncons.has(tId) && localMax > highestActiveH) highestActiveH = localMax;
+        });
+
+        if (highestActiveH === 0 && troncons.length > 0) highestActiveH = hMax;
+
+        return { troncons, lTotale, hMax, highestActiveH };
+    }
+    
+    function updateUI() {
+        state.product=document.getElementById('produit').value; 
+        document.getElementById('lbl-qty').innerText=(state.product==='leromur')?'Total Barres:':'Total Blocs:';
+        document.getElementById('col-depth-title').style.visibility=(state.product==='leromur')?'visible':'hidden';
+        if(state.shape==='trap') { document.getElementById('col-h-droite').style.display='block'; document.getElementById('lbl-h-gauche').innerText='H. Gauche'; } 
+        else { document.getElementById('col-h-droite').style.display='none'; document.getElementById('lbl-h-gauche').innerText='H. Visible'; }
+        genererNappes();
+    }
+    
+    function refreshPrices() { document.getElementById('pu-bloc').value=DATA[state.product].prices[state.color][state.mode].toFixed(2); updatePrixGeo(); }
+    function updatePrixGeo() { document.getElementById('pu-geo').value=GEO_PRICES[document.getElementById('typeGeo').value][state.mode].toFixed(2); calculer(); }
+    
+    function getBuriedHeight() {
+        const hg = parseFloat(document.getElementById('hors-gel').value)||0; 
+        const hf = parseFloat(document.getElementById('h-fondation').value)||0;
+        const buriedExact = Math.max(0, (hg-hf)/100); 
+        document.getElementById('hors-gel-info').innerHTML=`Enterré: <strong>${buriedExact.toFixed(2)}m</strong> (TN Aval exact)`;
+        return buriedExact;
+    }
+
+    function updateHeightProposal(id, hIn, hElem, hBur) {
+        const div = document.getElementById(id); if(!hIn||hIn<=0){div.style.display='none';return;}
+        const nbRangs = Math.ceil((hIn+hBur)/hElem);
+        const realVis = (nbRangs*hElem) - hBur;
+        div.style.display='block'; div.innerHTML=`Réel: <strong>${realVis.toFixed(2)}m</strong> (${nbRangs} rg)`;
+    }
+
+    function genererNappes() {
+        const hElem = DATA[state.product].h; 
+        const hBur = getBuriedHeight();
+        let maxH = 0;
+
+        if (state.shape === 'troncons') {
+            const dataT = getDonneesTroncons();
+            maxH = dataT.hMax; 
+            document.getElementById('proposal-gauche').style.display = 'none';
+            document.getElementById('proposal-droite').style.display = 'none';
+        } else {
+            const hVis = parseFloat(document.getElementById('hauteur').value)||0;
+            updateHeightProposal('proposal-gauche', hVis, hElem, hBur);
+            maxH = hVis;
+            if(state.shape==='trap') { 
+                const hD = parseFloat(document.getElementById('hauteur-droite').value)||0; 
+                updateHeightProposal('proposal-droite', hD, hElem, hBur); 
+                maxH = Math.max(hVis, hD); 
+            } else { 
+                document.getElementById('proposal-droite').style.display='none'; 
+            }
+        }
+        
+        const nbRangs = (maxH+hBur > 0) ? Math.ceil((maxH+hBur)/hElem) : 0;
+        const container = document.getElementById('nappes-container');
+        const oldRows = Array.from(container.querySelectorAll('.nappe-row')); 
+        container.innerHTML='';
+        
+        for(let i=0; i<nbRangs; i++) {
+            const isBuried = ((i+1)*hElem <= (hBur+0.05));
+            const div = document.createElement('div'); div.className = isBuried ? 'nappe-row buried-row' : 'nappe-row';
+            
+            let oldGeo=0, oldDepth="50";
+            if (loadedNappes && loadedNappes[i]) {
+                oldGeo = loadedNappes[i].geo;
+                oldDepth = loadedNappes[i].depth;
+            } else if(i<oldRows.length) { 
+                const inp=oldRows[i].querySelector('.inp-nappe'); if(inp) oldGeo=inp.value;
+                const ds=oldRows[i].querySelector('.depth-select'); if(ds) oldDepth=ds.value;
+            }
+            
+            let selHTML = (state.product==='leromur') ? `<select class="depth-select" onchange="calculer()"><option value="25" ${oldDepth=="25"?'selected':''}>25</option><option value="50" ${oldDepth=="50"?'selected':''}>50</option><option value="75" ${oldDepth=="75"?'selected':''}>75</option><option value="100" ${oldDepth=="100"?'selected':''}>100</option></select>` : `<span style="color:#ccc; font-size:0.8em">Std</span>`;
+            
+            let nappeInputHTML;
+            if (i === 0) {
+                 nappeInputHTML = `<span style="color:#ccc; text-align:right; display:block; padding:2px;">—</span>`; 
+            } else {
+                 nappeInputHTML = `<input type="number" class="nappe-input" step="0.5" placeholder="0" value="${oldGeo>0?oldGeo:''}" oninput="calculer()">`;
+            }
+
+            let label = `R${i+1}`;
+            if(i===0) label += " (Base)";
+            else if(i===nbRangs-1) label += " (Top)";
+            if(isBuried) label += ` <small style="color:${getComputedStyle(document.documentElement).getPropertyValue('--buried')}">(Ent)</small>`;
+
+            div.innerHTML=`<label style="line-height:1.1">${label}</label>${selHTML}${nappeInputHTML}`;
+            container.appendChild(div);
+        }
+        loadedNappes = null; 
+        refreshPrices();
+    }
+
+    function calculer() {
+        const L = parseFloat(document.getElementById('longueur').value)||0; const hElem=DATA[state.product].h;
+        const hG_in = parseFloat(document.getElementById('hauteur').value)||0; const hBur=getBuriedHeight();
+        const rows = Array.from(document.querySelectorAll('.nappe-row'));
+        if(rows.length===0 && (hG_in>0 || state.shape === 'troncons')) return;
+
+        const profile = rows.map(r=>{
+            let d=50; if(state.product==='leromur'){const s=r.querySelector('.depth-select'); if(s) d=parseInt(s.value);}
+            const i=r.querySelector('.nappe-input'); return {depth:d, geo: i?parseFloat(i.value)||0:0};
+        });
+
+        const nbRangsG = Math.ceil((hG_in+hBur)/hElem);
+        const hG_real = (nbRangsG * hElem) - hBur;
+        
+        let qty=0, sVis=0, sBur=0, geoTot=0;
+        let selQty = 0, selGeoTot = 0;
+        
+        if(state.shape==='rect') {
+            const surfTot = L*(rows.length*hElem); sBur=L*hBur; sVis=Math.max(0, surfTot-sBur);
+            profile.forEach(p=>{
+                if(state.product==='leromur') {
+                    let div=1; if(p.depth===25) div=4; else if(p.depth===50) div=2;
+                    qty += (L*CONSTANTS.LEROMUR_H*CONSTANTS.LEROMUR_BLOCS_M2)/div;
+                } else qty += (L*CONSTANTS.BETOATLAS_H*CONSTANTS.BETOATLAS_BLOCS_M2);
+                if(p.geo>0) geoTot += (p.geo+CONSTANTS.RECOUVREMENT)*L;
+            });
+        } else if(state.shape==='trap') {
+            const hD_in = parseFloat(document.getElementById('hauteur-droite').value)||0;
+            const nbRangsD = Math.ceil((hD_in+hBur)/hElem);
+            const hD_real = (nbRangsD * hElem) - hBur;
+            const step=0.1, steps=Math.ceil(L/step);
+            const hG_tot=hG_real+hBur, hD_tot=hD_real+hBur;
+            
+            for(let i=0; i<steps; i++) {
+                const x=(i*step)+step/2; const hLoc = hG_tot + (hD_tot-hG_tot)*(x/L);
+                const nbLoc = Math.ceil(hLoc/hElem);
+                const surfLoc = step*nbLoc*hElem; const burLoc = step*hBur;
+                sBur+=burLoc; sVis+=Math.max(0, surfLoc-burLoc);
+                for(let r=0; r<nbLoc; r++) {
+                    const p = profile[r]; if(p) {
+                        if(state.product==='leromur') {
+                            let div=1; if(p.depth===25) div=4; else if(p.depth===50) div=2;
+                            qty += (step*CONSTANTS.LEROMUR_H*CONSTANTS.LEROMUR_BLOCS_M2)/div;
+                        } else qty += (step*CONSTANTS.BETOATLAS_H*CONSTANTS.BETOATLAS_BLOCS_M2);
+                        if(p.geo>0) geoTot += (p.geo+CONSTANTS.RECOUVREMENT)*step;
+                    }
+                }
+            }
+        } else if(state.shape === 'troncons') {
+            const dataT = getDonneesTroncons();
+            document.getElementById('info-troncons-tot').innerText = `Long. Totale (tous tronçons): ${dataT.lTotale.toFixed(2)}m`;
+            
+            dataT.troncons.forEach(t => {
+                const nbRangsG_t = Math.ceil((t.hg + hBur)/hElem);
+                const hG_real_t = (nbRangsG_t * hElem) - hBur;
+                const nbRangsD_t = Math.ceil((t.hd + hBur)/hElem);
+                const hD_real_t = (nbRangsD_t * hElem) - hBur;
+                
+                const stepT = 0.1, stepsT = Math.ceil(t.l / stepT);
+                const hG_tot_t = hG_real_t + hBur;
+                const hD_tot_t = hD_real_t + hBur;
+                
+                let tQty = 0;
+                let tGeoTot = 0;
+
+                for(let i=0; i<stepsT; i++) {
+                    const x = (i * stepT) + stepT / 2;
+                    const hLoc = hG_tot_t + (hD_tot_t - hG_tot_t) * (x / t.l);
+                    const nbLoc = Math.ceil(hLoc / hElem);
+                    const surfLoc = stepT * nbLoc * hElem;
+                    const burLoc = stepT * hBur;
+                    
+                    sBur += burLoc;
+                    sVis += Math.max(0, surfLoc - burLoc);
+                    
+                    for(let r=0; r<nbLoc; r++) {
+                        const p = profile[r]; 
+                        if(p) {
+                            if(state.product==='leromur') {
+                                let div=1; if(p.depth===25) div=4; else if(p.depth===50) div=2;
+                                tQty += (stepT * CONSTANTS.LEROMUR_H * CONSTANTS.LEROMUR_BLOCS_M2)/div;
+                            } else {
+                                tQty += (stepT * CONSTANTS.BETOATLAS_H * CONSTANTS.BETOATLAS_BLOCS_M2);
+                            }
+                            if(p.geo>0) tGeoTot += (p.geo+CONSTANTS.RECOUVREMENT)*stepT;
+                        }
+                    }
+                }
+
+                qty += tQty;
+                geoTot += tGeoTot;
+
+                if (activeTroncons.has(t.id)) {
+                    selQty += tQty;
+                    selGeoTot += tGeoTot;
+                }
+            });
+
+            document.getElementById('sel-count').innerText = activeTroncons.size;
+            document.getElementById('sel-blocs').innerText = Math.ceil(selQty);
+            const selGeoReel = selGeoTot * (CONSTANTS.LARGEUR_ROULEAU/(CONSTANTS.LARGEUR_ROULEAU-2*CONSTANTS.RECOUVREMENT_LATERAL));
+            document.getElementById('sel-geo').innerText = Math.ceil(selGeoReel/CONSTANTS.LARGEUR_ROULEAU) + " ml";
+        }
+
+        const geoReel = geoTot * (CONSTANTS.LARGEUR_ROULEAU/(CONSTANTS.LARGEUR_ROULEAU-2*CONSTANTS.RECOUVREMENT_LATERAL));
+        const qAchat = Math.ceil(qty);
+        const colis = (state.product==='leromur')?CONSTANTS.PALETTE_LERO:CONSTANTS.PALETTE_BETO;
+        const nbPal = qAchat/colis; const palFull=Math.floor(nbPal); const rest=qAchat%colis;
+        const nbRlx = Math.floor(Math.ceil(geoReel/CONSTANTS.LARGEUR_ROULEAU)/100);
+        
+        let totB = qAchat * parseFloat(document.getElementById('pu-bloc').value||0);
+        let totG = geoReel * parseFloat(document.getElementById('pu-geo').value||0);
+        totB *= (1-(parseFloat(document.getElementById('remise-bloc').value||0)/100));
+        totG *= (1-(parseFloat(document.getElementById('remise-geo').value||0)/100));
+        const total = totB + totG + parseFloat(document.getElementById('cout-etude').value||0);
+
+        document.getElementById('res-surf').innerText=sVis.toFixed(2)+" m²";
+        document.getElementById('res-surf-buried').innerText=sBur.toFixed(2)+" m²";
+        document.getElementById('res-qty').innerText=qAchat;
+        document.getElementById('log-detail-palettes').innerText=`${palFull} pal + ${rest} u`;
+        document.getElementById('log-pal-sup').innerText=Math.ceil(qAchat/colis);
+        document.getElementById('log-items-sup').innerText=Math.ceil(qAchat/colis)*colis;
+        document.getElementById('log-ml').innerText=Math.ceil(geoReel/CONSTANTS.LARGEUR_ROULEAU)+" ml";
+        document.getElementById('log-detail-rouleaux').innerText = nbRlx>0 ? `${nbRlx} rlx + coupe` : "1 rlx (coupe)";
+        
+        document.getElementById('tot-blocs').innerText=totB.toFixed(2)+" €";
+        document.getElementById('tot-geo').innerText=totG.toFixed(2)+" €";
+        document.getElementById('grand-total').innerText=total.toFixed(2)+" €";
+        document.getElementById('px-m2').innerText=(sVis>0 ? total/sVis : 0).toFixed(2);
+
+        if(rows.length>0) draw(rows.length, hElem, profile, hBur);
+    }
+
+    function draw(nbRangsMax, hBloc, profile, hBuried) {
+        const container = document.getElementById('visu-container');
+        
+        const hG = parseFloat(document.getElementById('hauteur').value)||0;
+        const hD = (state.shape==='trap') ? (parseFloat(document.getElementById('hauteur-droite').value)||0) : hG;
+        const L = parseFloat(document.getElementById('longueur').value)||10;
+        const hFond = parseFloat(document.getElementById('h-fondation').value)||0; 
+        const hFondM = hFond/100;
+        const angDeg = parseFloat(document.getElementById('inclinaison').value)||0;
+        const ang = angDeg * (Math.PI/180);
+        const fruitBase = document.getElementById('fruit-base').checked; 
+
+        let maxH_vis = 1;
+        let svgFace = '';
+        
+        // ==========================================
+        // 1. DESSIN DE LA VUE DE FACE
+        // ==========================================
+        if (state.shape === 'troncons') {
+            const dataT = getDonneesTroncons();
+            const totalL = dataT.lTotale > 0 ? dataT.lTotale : 1;
+            const nbRangsM = Math.ceil((dataT.hMax + hBuried) / hBloc);
+            maxH_vis = Math.max((nbRangsM * hBloc) - hBuried, 1);
+            
+            const scaleFace = 90 / (maxH_vis + hBuried);
+            const ySol = 100 - (hBuried * scaleFace);
+            
+            let pointsPolygon = `0,100 `; 
+            let elementsTextLignes = '';
+            let currentX = 0;
+            
+            dataT.troncons.forEach((t, index) => {
+                const wPct = (t.l / totalL) * 100; 
+                
+                const nbRangsG_t = Math.ceil((t.hg + hBuried) / hBloc);
+                const hRealG_t = (nbRangsG_t * hBloc) - hBuried;
+                const yTopG_t = 100 - ((hRealG_t + hBuried) * scaleFace);
+                
+                const nbRangsD_t = Math.ceil((t.hd + hBuried) / hBloc);
+                const hRealD_t = (nbRangsD_t * hBloc) - hBuried;
+                const yTopD_t = 100 - ((hRealD_t + hBuried) * scaleFace);
+                
+                pointsPolygon += `${currentX},${yTopG_t} ${currentX + wPct},${yTopD_t} `;
+                
+                if (activeTroncons.has(t.id)) {
+                    elementsTextLignes += `<polygon points="${currentX},100 ${currentX},${yTopG_t} ${currentX + wPct},${yTopD_t} ${currentX + wPct},100" fill="#f39c12" opacity="0.4"/>`;
+                }
+
+                if (wPct > 8) { 
+                    const midY = (yTopG_t + yTopD_t) / 2;
+                    if(Math.abs(hRealG_t - hRealD_t) > 0.05) {
+                        elementsTextLignes += `<text x="${currentX + wPct/2}" y="${midY - 3}" font-size="4" text-anchor="middle" fill="#2c3e50">${hRealG_t.toFixed(2)} / ${hRealD_t.toFixed(2)}m</text>`;
+                    } else {
+                        elementsTextLignes += `<text x="${currentX + wPct/2}" y="${yTopG_t - 3}" font-size="5" text-anchor="middle" fill="#2c3e50">${hRealG_t.toFixed(2)}m</text>`;
+                    }
+                }
+                
+                if (index > 0) {
+                    elementsTextLignes += `<line x1="${currentX}" y1="100" x2="${currentX}" y2="${Math.max(yTopG_t, yTopD_t)}" stroke="#7f8c8d" stroke-width="0.3" stroke-dasharray="1,1"/>`;
+                }
+                currentX += wPct;
+            });
+            pointsPolygon += `100,100`; 
+
+            svgFace = `<svg width="100%" height="25%" viewBox="-10 -20 120 140" preserveAspectRatio="xMidYMid meet">
+                <text x="50" y="-10" text-anchor="middle" font-size="8" fill="#666" font-weight="bold">VUE FACE (MURS TRAPÈZES / ESCALIER)</text>
+                <polygon points="${pointsPolygon}" fill="#bdc3c7" stroke="#2c3e50" stroke-width="1"/>
+                ${elementsTextLignes}
+                <polygon points="-5,105 105,105 105,${ySol} -5,${ySol}" fill="#8d6e63" opacity="0.3"/>
+                <line x1="-5" y1="${ySol}" x2="105" y2="${ySol}" stroke="#8d6e63" stroke-width="1" stroke-dasharray="3,3"/>
+                <text x="50" y="115" font-size="8" text-anchor="middle">Long. Totale = ${totalL.toFixed(2)}m</text>
+            </svg>`;
+            
+        } else {
+            const nbRangsG = Math.ceil((hG+hBuried)/hBloc);
+            const hG_real = (nbRangsG * hBloc) - hBuried;
+            const nbRangsD = Math.ceil((hD+hBuried)/hBloc);
+            const hD_real = (nbRangsD * hBloc) - hBuried;
+
+            maxH_vis = Math.max(hG_real, hD_real, 1);
+            const scaleFace = 90 / (maxH_vis + hBuried); 
+            const yTopG = 100 - ((hG_real+hBuried)*scaleFace);
+            const yTopD = 100 - ((hD_real+hBuried)*scaleFace);
+            const ySol = 100 - (hBuried*scaleFace);
+            
+            svgFace = `<svg width="100%" height="25%" viewBox="-10 -20 120 140" preserveAspectRatio="xMidYMid meet">
+                <text x="50" y="-5" text-anchor="middle" font-size="8" fill="#666" font-weight="bold">VUE FACE</text>
+                <polygon points="0,100 100,100 100,${yTopD} 0,${yTopG}" fill="#bdc3c7" stroke="#2c3e50" stroke-width="1"/>
+                <polygon points="-5,105 105,105 105,${ySol} -5,${ySol}" fill="#8d6e63" opacity="0.3"/>
+                <line x1="-5" y1="${ySol}" x2="105" y2="${ySol}" stroke="#8d6e63" stroke-width="1" stroke-dasharray="3,3"/>
+                <text x="-8" y="${yTopG+5}" font-size="8">${hG_real.toFixed(2)}m</text>
+                <text x="102" y="${yTopD+5}" font-size="8">${hD_real.toFixed(2)}m</text>
+                <text x="50" y="115" font-size="8" text-anchor="middle">L=${L}m</text>
+            </svg>`;
+        }
+
+        // ==========================================
+        // 2. DESSIN DE LA COUPE TECHNIQUE
+        // ==========================================
+        let hCoupe = hG;
+        let titleCoupe = "COUPE TECHNIQUE";
+
+        if (state.shape === 'troncons') {
+            const dataT = getDonneesTroncons();
+            hCoupe = dataT.highestActiveH; 
+            if(activeTroncons.size === 1) {
+                titleCoupe = `COUPE TECHNIQUE (Tronçon #${Array.from(activeTroncons)[0]})`;
+            } else if (activeTroncons.size > 1) {
+                titleCoupe = `COUPE TECHNIQUE (Sélection Max)`;
+            } else {
+                titleCoupe = `COUPE TECHNIQUE (Globale)`;
+            }
+        } else if (state.shape === 'trap') {
+            hCoupe = Math.max(hG, hD);
+        }
+
+        let nbRangsCoupe = Math.ceil((hCoupe + hBuried) / hBloc);
+        if (nbRangsCoupe <= 0) nbRangsCoupe = 1;
+
+        const S = 30; 
+        const maxGeo = Math.max(1, ...profile.map(p=>p.geo));
+        const totH = nbRangsCoupe * hBloc;
+        const shift = totH * Math.tan(ang);
+        
+        const wM = 0.5 + shift + maxGeo + 1; 
+        const hM = totH + hFondM; 
+
+        const minX = -4.5 * S;
+        const minY = -2.5 * S;
+        const vW = (wM + 5) * S;
+        const vH = (hM + 4) * S;
+        
+        let svgC = `<svg width="100%" height="75%" viewBox="${minX} ${minY} ${vW} ${vH}" preserveAspectRatio="xMidYMid meet">
+            <text x="${(shift+maxGeo)*S/2}" y="${minY + 10}" text-anchor="middle" font-size="8" fill="#666" font-weight="bold">${titleCoupe}</text>
+            <defs><pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="10" fill="#8d6e63"/></pattern></defs>`;
+
+        const yBot = totH * S;
+        const yTN = yBot - (hBuried * S); 
+
+        const iTop = nbRangsCoupe - 1;
+        const pTop = profile[iTop] || {depth:50};
+        
+        // PROFONDEUR BETOATLAS EXACTE À 50 cm
+        let dTop = 0.50;
+        if(state.product === 'leromur') dTop = pTop.depth/100;
+
+        const xTN = fruitBase ? (hBuried * Math.sin(ang)) : (hBuried * Math.tan(ang));
+        const xTopFront = fruitBase ? (totH * Math.sin(ang)) : (totH * Math.tan(ang));
+        const fruitVis = xTopFront - xTN;
+        const xTopBack = xTopFront + dTop; 
+
+        const yDimFruit = -14; 
+        const yDimBloc  = -28; 
+        
+        svgC += `<line x1="${xTN*S}" y1="${yDimFruit-8}" x2="${xTN*S}" y2="${yTN}" stroke="#7f8c8d" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+        svgC += `<line x1="${xTopFront*S}" y1="${yDimBloc-8}" x2="${xTopFront*S}" y2="0" stroke="#7f8c8d" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+        svgC += `<line x1="${xTopBack*S}" y1="${yDimBloc-8}" x2="${xTopBack*S}" y2="0" stroke="#7f8c8d" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+
+        if (fruitVis > 0.001) {
+            svgC += `<line x1="${xTN*S}" y1="${yDimFruit}" x2="${xTopFront*S}" y2="${yDimFruit}" stroke="#8e44ad" stroke-width="1"/>`;
+            svgC += `<line x1="${xTN*S}" y1="${yDimFruit-3}" x2="${xTN*S}" y2="${yDimFruit+3}" stroke="#8e44ad" stroke-width="1"/>`;
+            svgC += `<line x1="${xTopFront*S}" y1="${yDimFruit-3}" x2="${xTopFront*S}" y2="${yDimFruit+3}" stroke="#8e44ad" stroke-width="1"/>`;
+            svgC += `<text x="${(xTN + xTopFront)*S/2}" y="${yDimFruit-4}" font-size="7" fill="#8e44ad" text-anchor="middle">${fruitVis.toFixed(2)}m</text>`;
+        }
+        
+        const yUse = yDimBloc;
+        svgC += `<line x1="${xTopFront*S}" y1="${yUse}" x2="${xTopBack*S}" y2="${yUse}" stroke="#8e44ad" stroke-width="1"/>`;
+        svgC += `<line x1="${xTopFront*S}" y1="${yUse-3}" x2="${xTopFront*S}" y2="${yUse+3}" stroke="#8e44ad" stroke-width="1"/>`;
+        svgC += `<line x1="${xTopBack*S}" y1="${yUse-3}" x2="${xTopBack*S}" y2="${yUse+3}" stroke="#8e44ad" stroke-width="1"/>`;
+        svgC += `<text x="${(xTopFront + xTopBack)*S/2}" y="${yUse-4}" font-size="7" fill="#8e44ad" text-anchor="middle">${dTop.toFixed(2)}m</text>`;
+
+        // === DESSIN DES BLOCS ET DE LA FONDATION (INCLINAISON PAR LA BASE OU NON) ===
+        if (fruitBase) {
+            svgC += `<g transform="rotate(${angDeg}, 0, ${yBot})">`;
+        }
+
+        for(let i=0; i<nbRangsCoupe; i++) {
+            const p = profile[i] || {depth:50,geo:0};
+            let d = 0.50; 
+            if(state.product==='leromur') d = p.depth/100;
+            
+            const y = (nbRangsCoupe - 1 - i) * hBloc * S;
+            const x = fruitBase ? 0 : (i*hBloc*Math.tan(ang)) * S; 
+            
+            svgC += `<rect x="${x}" y="${y}" width="${d*S}" height="${hBloc*S}" fill="#95a5a6" stroke="white" stroke-width="0.3"/>`;
+            svgC += `<text x="${x + (d*S)/2}" y="${y + (hBloc*S)/2 + 2}" font-size="5" fill="#ffffff" text-anchor="middle" font-weight="bold">${i+1}</text>`;
+
+            if(!fruitBase && p.geo>0 && i>0) {
+                svgC += `<line x1="${x+d*S}" y1="${y+hBloc*S}" x2="${x+d*S+p.geo*S}" y2="${y+hBloc*S}" stroke="#2980b9" stroke-width="0.5"/>`;
+            }
+        }
+
+        // PROFONDEUR DE LA SEMELLE ADAPTÉE
+        const wSem = (state.product==='leromur'&&profile[0] ? profile[0].depth/100 : 0.50) + 0.30;
+        svgC += `<rect x="${-0.15*S}" y="${yBot}" width="${wSem*S}" height="${hFondM*S}" fill="#7f8c8d"/>`;
+        svgC += `<text x="${-0.15*S}" y="${yBot+hFondM*S+12}" font-size="8" fill="#333">Semelle ${hFond}cm</text>`;
+        
+        if (fruitBase) {
+            svgC += `</g>`; 
+            
+            // Si INCLINÉ PAR LA BASE : On dessine les géotextiles HORS du groupe de rotation pour les garder horizontaux
+            for(let i=1; i<nbRangsCoupe; i++) {
+                const p = profile[i] || {depth:50,geo:0};
+                if(p.geo > 0) {
+                    let d = 0.50; 
+                    if(state.product==='leromur') d = p.depth/100;
+                    
+                    const dx = d * S;
+                    const dy = -i * hBloc * S;
+                    const xAttach = 0 + dx * Math.cos(ang) - dy * Math.sin(ang);
+                    const yAttach = yBot + dx * Math.sin(ang) + dy * Math.cos(ang);
+                    svgC += `<line x1="${xAttach}" y1="${yAttach}" x2="${xAttach + p.geo*S}" y2="${yAttach}" stroke="#2980b9" stroke-width="0.5"/>`;
+                }
+            }
+        }
+
+        svgC += `<rect x="-70" y="${yTN}" width="70" height="${(hBuried+hFondM)*S+50}" fill="url(#hatch)" opacity="0.3"/>`;
+        svgC += `<line x1="-70" y1="${yTN}" x2="0" y2="${yTN}" stroke="#8d6e63" stroke-width="1.5"/>`;
+        svgC += `<text x="-65" y="${yTN-5}" font-size="9" fill="#8d6e63" font-weight="bold">TN Aval</text>`;
+
+        const xTopBackDraw = xTopBack * S;
+        svgC += `<line x1="${xTopBackDraw}" y1="0" x2="${vW}" y2="0" stroke="#27ae60" stroke-width="2"/>`;
+        svgC += `<text x="${xTopBackDraw + 10}" y="-5" font-size="9" fill="#27ae60" font-weight="bold">TN Amont</text>`;
+        
+        const yTop = 0;
+        const yTot = yBot + (hFondM * S); 
+        const xGuideLeft = -3.5 * S;
+        const xDimVis = -1.5 * S; 
+        const xDimTot = -2.8 * S; 
+        
+        svgC += `<line x1="0" y1="${yTop}" x2="${xGuideLeft-10}" y2="${yTop}" stroke="#7f8c8d" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+        svgC += `<line x1="0" y1="${yTN}" x2="${xDimVis-5}" y2="${yTN}" stroke="#7f8c8d" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+        svgC += `<line x1="-5" y1="${yTot}" x2="${xGuideLeft-10}" y2="${yTot}" stroke="#7f8c8d" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+
+        svgC += `<line x1="${xDimVis}" y1="${yTop}" x2="${xDimVis}" y2="${yTN}" stroke="#2980b9" stroke-width="1"/>`;
+        svgC += `<line x1="${xDimVis-3}" y1="${yTop}" x2="${xDimVis+3}" y2="${yTop}" stroke="#2980b9" stroke-width="1"/>`;
+        svgC += `<line x1="${xDimVis-3}" y1="${yTN}" x2="${xDimVis+3}" y2="${yTN}" stroke="#2980b9" stroke-width="1"/>`;
+        svgC += `<text x="${xDimVis-5}" y="${yTN/2 + 2}" font-size="7" fill="#2980b9" text-anchor="end">${(totH - hBuried).toFixed(2)}m</text>`;
+
+        svgC += `<line x1="${xDimTot}" y1="${yTop}" x2="${xDimTot}" y2="${yTot}" stroke="#16a085" stroke-width="1"/>`;
+        svgC += `<line x1="${xDimTot-3}" y1="${yTop}" x2="${xDimTot+3}" y2="${yTop}" stroke="#16a085" stroke-width="1"/>`;
+        svgC += `<line x1="${xDimTot-3}" y1="${yTot}" x2="${xDimTot+3}" y2="${yTot}" stroke="#16a085" stroke-width="1"/>`;
+        svgC += `<text x="${xDimTot-5}" y="${yTot/2 + 2}" font-size="7" fill="#16a085" text-anchor="end">${(totH + hFondM).toFixed(2)}m</text>`;
+
+        svgC += `</svg>`;
+        container.innerHTML = svgFace + svgC;
+    }
+
+    function sauvegarderConfig() {
+        const client = document.getElementById('client').value.trim();
+        if (!client) { alert("Veuillez saisir un nom de Chantier / Client pour sauvegarder."); return; }
+        
+        const rows = Array.from(document.querySelectorAll('.nappe-row'));
+        const profile = rows.map(r => {
+            const s = r.querySelector('.depth-select');
+            const i = r.querySelector('.nappe-input');
+            return { depth: s ? s.value : "50", geo: i ? parseFloat(i.value)||0 : 0 };
+        });
+
+        const config = {
+            produit: document.getElementById('produit').value,
+            inclinaison: document.getElementById('inclinaison').value,
+            fruitBase: document.getElementById('fruit-base').checked,
+            longueur: document.getElementById('longueur').value,
+            horsGel: document.getElementById('hors-gel').value,
+            hFondation: document.getElementById('h-fondation').value,
+            hauteur: document.getElementById('hauteur').value,
+            hauteurDroite: document.getElementById('hauteur-droite').value,
+            typeGeo: document.getElementById('typeGeo').value,
+            coutEtude: document.getElementById('cout-etude').value,
+            puBloc: document.getElementById('pu-bloc').value,
+            puGeo: document.getElementById('pu-geo').value,
+            remiseBloc: document.getElementById('remise-bloc').value,
+            remiseGeo: document.getElementById('remise-geo').value,
+            mode: state.mode,
+            color: state.color,
+            shape: state.shape,
+            nappes: profile,
+            troncons: state.shape === 'troncons' ? getDonneesTroncons().troncons : [],
+            activeTroncons: Array.from(activeTroncons)
+        };
+
+        let saves = JSON.parse(localStorage.getItem('betoconcept_saves') || '{}');
+        saves[client] = config;
+        localStorage.setItem('betoconcept_saves', JSON.stringify(saves));
+        mettreAJourListeSauvegardes(client);
+        alert(`Affaire "${client}" sauvegardée avec succès !`);
+    }
+
+    function mettreAJourListeSauvegardes(selected = '') {
+        const saves = JSON.parse(localStorage.getItem('betoconcept_saves') || '{}');
+        const select = document.getElementById('liste-sauvegardes');
+        select.innerHTML = '<option value="">-- Charger une affaire enregistrée --</option>';
+        Object.keys(saves).forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            if(name === selected) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
+    function chargerConfig(client) {
+        if (!client) return;
+        const saves = JSON.parse(localStorage.getItem('betoconcept_saves') || '{}');
+        const config = saves[client];
+        if (!config) return;
+
+        document.getElementById('client').value = client;
+        document.getElementById('produit').value = config.produit;
+        document.getElementById('inclinaison').value = config.inclinaison;
+        document.getElementById('fruit-base').checked = config.fruitBase || false;
+        document.getElementById('longueur').value = config.longueur;
+        document.getElementById('hors-gel').value = config.horsGel;
+        document.getElementById('h-fondation').value = config.hFondation;
+        document.getElementById('hauteur').value = config.hauteur;
+        document.getElementById('hauteur-droite').value = config.hauteurDroite;
+        document.getElementById('typeGeo').value = config.typeGeo;
+        document.getElementById('cout-etude').value = config.coutEtude;
+        document.getElementById('remise-bloc').value = config.remiseBloc;
+        document.getElementById('remise-geo').value = config.remiseGeo;
+        
+        const modes = ['negoce', 'entreprise', 'particulier'];
+        setTarif(modes[config.mode], document.querySelectorAll('.btn-mode')[config.mode]);
+        setColor(config.color, document.querySelectorAll('.radio-label')[config.color === 'gris' ? 0 : 1]);
+
+        if (config.shape === 'troncons' && config.troncons) {
+            document.getElementById('liste-troncons').innerHTML = '';
+            tronconId = 0;
+            activeTroncons = new Set(config.activeTroncons || []);
+            config.troncons.forEach(t => {
+                const hg = t.hg !== undefined ? t.hg : t.h;
+                const hd = t.hd !== undefined ? t.hd : t.h;
+                ajouterTroncon(t.l, hg, hd);
+            });
+        }
+        setShape(config.shape);
+
+        loadedNappes = config.nappes; 
+        updateUI(); 
+        
+        document.getElementById('pu-bloc').value = config.puBloc;
+        document.getElementById('pu-geo').value = config.puGeo;
+        calculer();
+    }
+
+    window.onload = () => { 
+        mettreAJourListeSauvegardes();
+        genererNappes(); 
+        updateUI(); 
+    };
+</script>
+</body>
+</html>
